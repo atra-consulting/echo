@@ -1,0 +1,55 @@
+<div class="flex-row">
+    <mat-form-field>
+        <mat-label>Anrede</mat-label>
+        <mat-select #salutation name="salutation" [(ngModel)]="dataStorageService.formData.salutation" (selectionChange)="saveData('salutation', $event.value)">
+            <mat-option value="Herr">Herr</mat-option>
+            <mat-option value="Frau">Frau</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Vorname</mat-label>
+        <input matInput #firstname [(ngModel)]="dataStorageService.formData.firstname" name="firstname" type="text" (input)="saveData('firstname', firstname.value)" />
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Nachname</mat-label>
+        <input matInput [(ngModel)]="dataStorageService.formData.lastname" #lastname name="lastname" type="text" (input)="saveData('lastname', lastname.value)" />
+    </mat-form-field>
+</div>
+<div class="flex-row">
+    <mat-form-field>
+        <mat-label>Geburtsdatum</mat-label>
+        <input matInput #birthdate name="birthdate" [(ngModel)]="dataStorageService.birthdate" [matDatepicker]="birthdatepicker" (dateChange)="onDateChange('birthdate', $event)" />
+        <mat-hint>TT.MM.JJJJ</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="birthdatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #birthdatepicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Geburtsort</mat-label>
+        <input matInput [(ngModel)]="dataStorageService.formData.birthplace" #birthplace name="birthplace" type="text" (input)="saveData('birthplace', birthplace.value)" />
+    </mat-form-field>
+</div>
+<div class="flex-row">
+    <mat-form-field>
+        <mat-label>Startdatum</mat-label>
+        <input matInput #hiredate name="hiredate" [(ngModel)]="dataStorageService.hiredate" [matDatepicker]="startdatepicker" (dateChange)="onDateChange('hiredate', $event)" />
+        <mat-hint>TT.MM.JJJJ</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="startdatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #startdatepicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>{{ dataStorageService.certificateType === 'abschlusszeugnis' ? 'Austrittsdatum' : 'Ausstellungsdatum' }}</mat-label>
+        <input matInput #enddate name="enddate" [(ngModel)]="dataStorageService.enddate" [matDatepicker]="enddatepicker" (dateChange)="onDateChange('enddate', $event)" />
+        <mat-hint>TT.MM.JJJJ</mat-hint>
+        @if (dataStorageService.certificateType === 'zwischenzeugnis') {
+        <mat-hint align="end" style="font-size: 0.7em; line-height: 1.2">Zeitnah zum Anlass wählen!</mat-hint>
+        }
+        <mat-datepicker-toggle matIconSuffix [for]="enddatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #enddatepicker></mat-datepicker>
+    </mat-form-field>
+</div>
+<div class="flex-row">
+    <mat-form-field>
+        <mat-label>Jobtitel</mat-label>
+        <input matInput [(ngModel)]="dataStorageService.formData.job_title" #job_title name="job_title" type="text" (input)="saveData('job_title', job_title.value)" />
+    </mat-form-field>
+</div>

@@ -1,0 +1,247 @@
+// atra.consulting corporate colors
+$primary: #264892;
+$secondary-1: #a7c6eb;
+$accent-2: #f98752;
+
+.page {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba($primary, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 90%, rgba($secondary-1, 0.12) 0%, transparent 60%),
+        linear-gradient(180deg, #f8f9fc 0%, #edf0f7 100%);
+    z-index: 0;
+}
+
+@mixin dark-hero-bg {
+    .hero-bg {
+        background:
+            radial-gradient(ellipse 80% 60% at 50% -10%, rgba($primary, 0.20) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 40% at 80% 90%, rgba($secondary-1, 0.08) 0%, transparent 60%),
+            linear-gradient(180deg, #111827 0%, #0f1421 100%);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :host-context(html:not([data-theme="light"])) {
+        @include dark-hero-bg;
+    }
+}
+
+:host-context(html[data-theme="dark"]) {
+    @include dark-hero-bg;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    color: var(--text-secondary);
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 48px 24px;
+    box-sizing: border-box;
+    gap: 56px;
+}
+
+.hero {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    .logo {
+        width: 220px;
+        height: auto;
+        margin-bottom: 8px;
+    }
+
+    .logo-light { display: var(--logo-light-display, inline); }
+    .logo-dark { display: var(--logo-dark-display, none); }
+
+    h1 {
+        margin: 0;
+        font-size: 2.75rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--color-brand);
+        line-height: 1.1;
+    }
+
+    .subtitle {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+        max-width: 400px;
+        line-height: 1.6;
+    }
+}
+
+.card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 520px;
+    width: 100%;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--surface-card);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--border-color-hover);
+        box-shadow: var(--shadow-card-hover);
+
+        .card-icon {
+            background: var(--icon-bg-hover);
+            mat-icon { color: #fff; }
+        }
+
+        .card-arrow {
+            opacity: 1;
+            transform: translateX(0);
+            color: $accent-2;
+        }
+    }
+
+    &:focus-visible {
+        outline-color: var(--color-brand);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.card-icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    mat-icon {
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
+        color: var(--color-brand);
+        transition: color 0.25s ease;
+    }
+}
+
+.card-body {
+    flex: 1;
+    min-width: 0;
+
+    h2 {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+}
+
+.card-arrow {
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-secondary);
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+}
+
+.footer-note {
+    max-width: 520px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-align: center;
+    // --text-body instead of --text-secondary: enough contrast on the light gradient
+    color: var(--text-body);
+    letter-spacing: 0.02em;
+
+    p {
+        margin: 0;
+    }
+
+    p + p {
+        margin-top: 8px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .content {
+        gap: 40px;
+        padding: 32px 16px;
+    }
+
+    .hero {
+        .logo { width: 160px; }
+        h1 { font-size: 2rem; }
+        .subtitle { font-size: 1rem; }
+    }
+
+    .card {
+        padding: 20px;
+        gap: 16px;
+    }
+
+    .card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+
+        mat-icon {
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+        }
+    }
+
+    .card-arrow {
+        display: none;
+    }
+}

@@ -1,0 +1,37 @@
+# This .gitignore file is designed to function as a whitelist.
+# Add a matching pattern to the list for keeping track of your files.
+# The two lines below changes the .gitignore file from a blacklist to a whitelist, do not touch them.
+*
+!*/
+
+# Documentation
+!/CHANGELOG.md
+!/CLAUDE.md
+!/CONTRIBUTING.md
+!/LICENSE
+!/README.md
+!/SECURITY.md
+!/docs/**
+
+# Contribution
+!/.editorconfig
+!/.gitignore
+
+# Build
+!/.github/**
+!/.dockerignore
+!/.releaserc.yml
+!/angular.json
+!/commitlint.config.js
+!/Dockerfile
+!/package.json
+!/package-lock.json
+!/tsconfig.app.json
+!/tsconfig.json
+!/tsconfig.spec.json
+
+# Source
+!/**/src/**
+
+# Blacklist
+node_modules

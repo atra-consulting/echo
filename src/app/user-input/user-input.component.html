@@ -1,0 +1,158 @@
+<div class="page">
+    <header class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <button mat-icon-button aria-label="Zurück" (click)="back()">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <img src="assets/atra-logo.svg" alt="atra.consulting" class="top-bar-logo logo-light" />
+                <img src="assets/atra-logo-dark.svg" alt="atra.consulting" class="top-bar-logo logo-dark" />
+                <div class="top-bar-divider"></div>
+                <div class="top-bar-title">
+                    <span class="title-label">{{ dataStorageService.certificateType | titlecase }}</span>
+                    <span class="title-sub">Generator</span>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <button
+                    mat-icon-button
+                    matTooltip="Design"
+                    aria-label="Design wechseln"
+                    [matMenuTriggerFor]="themeMenu">
+                    <mat-icon>
+                        @switch (themeService.themeMode()) {
+                            @case ('light') { light_mode }
+                            @case ('dark') { dark_mode }
+                            @default { brightness_auto }
+                        }
+                    </mat-icon>
+                </button>
+                <mat-menu #themeMenu="matMenu">
+                    <button mat-menu-item (click)="themeService.setTheme('system')">
+                        <mat-icon>brightness_auto</mat-icon>
+                        <span>System</span>
+                    </button>
+                    <button mat-menu-item (click)="themeService.setTheme('light')">
+                        <mat-icon>light_mode</mat-icon>
+                        <span>Hell</span>
+                    </button>
+                    <button mat-menu-item (click)="themeService.setTheme('dark')">
+                        <mat-icon>dark_mode</mat-icon>
+                        <span>Dunkel</span>
+                    </button>
+                </mat-menu>
+                <button
+                    mat-icon-button
+                    matTooltip="Zurücksetzen"
+                    aria-label="Zurücksetzen"
+                    (click)="resetLocalStorage()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+                @if (!googleAuthService.isSignedIn()) {
+                    <button mat-flat-button (click)="signIn()">Anmelden</button>
+                }
+                @if (googleAuthService.isSignedIn()) {
+                    <button mat-icon-button class="menu-button" aria-label="Menü" [matMenuTriggerFor]="menu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item (click)="exportToGoogleDoc()">
+                            <mat-icon>description</mat-icon>
+                            <span>Google-Dokument erstellen</span>
+                        </button>
+                        <button mat-menu-item (click)="exportToGoogleSheet()">
+                            <mat-icon>table_chart</mat-icon>
+                            <span>Google-Tabelle erstellen</span>
+                        </button>
+                        <button mat-menu-item (click)="signOut()">
+                            <mat-icon>logout</mat-icon>
+                            <span>Abmelden</span>
+                        </button>
+                    </mat-menu>
+                }
+            </div>
+        </div>
+    </header>
+
+    @if (!dataStorageService.inputData) {
+        <div class="main-content">
+            <div class="skeleton-container">
+                <div class="skeleton skeleton-stepper"></div>
+                <div class="skeleton skeleton-output"></div>
+            </div>
+        </div>
+    }
+    @if (dataStorageService.inputData) {
+        <div class="main-content">
+            <div class="panel stepper-panel">
+                <mat-stepper orientation="vertical" #stepper>
+                    @for (step of dataStorageService.inputData.textblocks; track step) {
+                        <mat-step [label]="step.title">
+                            <div class="step-content">
+                                @switch (step.type) {
+                                    @case ('topic') {
+                                        @if (step.name === 'intro') {
+                                            <app-intro></app-intro>
+                                            <app-block-selector
+                                                [options]="dataStorageService.refreshData(step.options)"
+                                                [topicKey]="step.name"
+                                                [subtopicKey]="'option'"
+                                            ></app-block-selector>
+                                        }
+                                        @if (step.name === 'position') {
+                                            <app-position></app-position>
+                                            <app-block-selector
+                                                [options]="dataStorageService.refreshData(step.options)"
+                                                [topicKey]="step.name"
+                                                [subtopicKey]="'option'"
+                                            ></app-block-selector>
+                                        }
+                                        @if (step.options[0].type === 'subtopic') {
+                                            @for (subtopic of step.options; track subtopic) {
+                                                <div class="subtopic">
+                                                    <h6>{{ subtopic.title }}</h6>
+                                                    @if (subtopic.options[0]?.title) {
+                                                        <app-block-rating
+                                                            [options]="subtopic.options"
+                                                            [topicKey]="step.name"
+                                                            [subtopicKey]="subtopic.name"
+                                                        ></app-block-rating>
+                                                    } @else {
+                                                        <app-block-selector
+                                                            [options]="dataStorageService.refreshData(subtopic.options)"
+                                                            [topicKey]="step.name"
+                                                            [subtopicKey]="subtopic.name"
+                                                        ></app-block-selector>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                        @if (step.options[0].type === 'options') {
+                                            @for (subtopic of step.options; track subtopic) {
+                                                <div class="options">
+                                                    <h6>{{ subtopic.title }}</h6>
+                                                    <app-block-selector
+                                                        [options]="dataStorageService.refreshData(subtopic.options)"
+                                                        [topicKey]="subtopic.name"
+                                                        [subtopicKey]="step.options[0].name"
+                                                    ></app-block-selector>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    @default {}
+                                }
+                            </div>
+                        </mat-step>
+                    }
+                </mat-stepper>
+            </div>
+            <div class="output-panel">
+                <app-reference-output
+                    [flowTextHtml]="dataStorageService.flowTextHtml"
+                    (placeholderClick)="navigateToField($event)"
+                ></app-reference-output>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,56 @@
+<div class="flex-row">
+  <mat-form-field>
+    <mat-label>Geschäftsbereich</mat-label>
+    <mat-select
+      #business_area
+      name="business_area"
+      [ngModel]="dataStorageService.formData.business_area"
+      (selectionChange)="dataStorageService.setFormData('business_area', business_area.value)"
+    >
+      <mat-option value="Handel">Handel</mat-option>
+      <mat-option value="Finanzdienstleistungen">Finanzdienstleistungen</mat-option>
+      <mat-option value="Behörden">Behörden</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Kompetenzbereich</mat-label>
+    <mat-select
+      #area_of_expertise
+      name="area_of_expertise"
+      [ngModel]="dataStorageService.formData.area_of_expertise"
+      (selectionChange)="dataStorageService.setFormData('area_of_expertise', area_of_expertise.value)"
+    >
+      <mat-option value="Software-Engineering">Software Engineering</mat-option>
+      <mat-option value="Coaching">Coaching</mat-option>
+      <mat-option value="Consulting">Consulting</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div class="flex-row">
+  <mat-form-field>
+    <mat-label>Projekte</mat-label>
+    <textarea
+      matInput
+      #projects
+      [(ngModel)]="dataStorageService.formData.projects"
+      name="projects"
+      cdkTextareaAutosize
+      cdkAutosizeMinRows="3"
+      width="100%"
+      (input)="dataStorageService.setFormData('projects', projects.value)"
+    ></textarea>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Aufgabenbeschreibung</mat-label>
+    <textarea
+      matInput
+      #task_list
+      [(ngModel)]="dataStorageService.formData.task_list"
+      name="task_list"
+      cdkTextareaAutosize
+      cdkAutosizeMinRows="3"
+      width="100%"
+      (input)="dataStorageService.setFormData('task_list', task_list.value)"
+    ></textarea>
+  </mat-form-field>
+</div>

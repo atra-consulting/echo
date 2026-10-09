@@ -1,0 +1,63 @@
+<div class="page">
+    <div class="hero-bg"></div>
+    <button mat-icon-button class="theme-toggle" [matMenuTriggerFor]="themeMenu" matTooltip="Design" aria-label="Design wechseln">
+        <mat-icon>
+            @switch (themeService.themeMode()) {
+                @case ('light') { light_mode }
+                @case ('dark') { dark_mode }
+                @default { brightness_auto }
+            }
+        </mat-icon>
+    </button>
+    <mat-menu #themeMenu="matMenu">
+        <button mat-menu-item (click)="themeService.setTheme('system')">
+            <mat-icon>brightness_auto</mat-icon>
+            <span>System</span>
+        </button>
+        <button mat-menu-item (click)="themeService.setTheme('light')">
+            <mat-icon>light_mode</mat-icon>
+            <span>Hell</span>
+        </button>
+        <button mat-menu-item (click)="themeService.setTheme('dark')">
+            <mat-icon>dark_mode</mat-icon>
+            <span>Dunkel</span>
+        </button>
+    </mat-menu>
+    <div class="content">
+        <div class="hero">
+            <img src="assets/atra-logo.svg" alt="atra.consulting" class="logo logo-light" />
+            <img src="assets/atra-logo-dark.svg" alt="atra.consulting" class="logo logo-dark" />
+            <h1>Zeugnisgenerator</h1>
+            <p class="subtitle">Arbeitszeugnisse in wenigen Schritten aus Textbausteinen zusammenstellen</p>
+        </div>
+        <div class="card-grid">
+            <button class="card" (click)="loadData('zwischenzeugnis')">
+                <div class="card-icon">
+                    <mat-icon>description</mat-icon>
+                </div>
+                <div class="card-body">
+                    <h2>Zwischenzeugnis</h2>
+                    <p>Für aktuelle Mitarbeiter, die ein Zeugnis während des laufenden Arbeitsverhältnisses benötigen.</p>
+                </div>
+                <mat-icon class="card-arrow">arrow_forward</mat-icon>
+            </button>
+            <button class="card" (click)="loadData('abschlusszeugnis')">
+                <div class="card-icon">
+                    <mat-icon>task</mat-icon>
+                </div>
+                <div class="card-body">
+                    <h2>Abschlusszeugnis</h2>
+                    <p>Für ausscheidende Mitarbeiter als abschließende Bewertung des Arbeitsverhältnisses.</p>
+                </div>
+                <mat-icon class="card-arrow">arrow_forward</mat-icon>
+            </button>
+        </div>
+        <footer class="footer-note">
+            <p>
+                Die Textbausteine sind unverbindliche Formulierungsvorschläge und keine Rechtsberatung.
+                Bitte prüfen Sie jedes Zeugnis vor der Verwendung.
+            </p>
+            <p>Ein Werkzeug von atra.consulting</p>
+        </footer>
+    </div>
+</div>

@@ -1,0 +1,114 @@
+@use '@angular/material' as mat;
+
+// atra.consulting corporate font stack
+$font-stack: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+$theme: mat.define-theme((
+    color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$orange-palette,
+    ),
+    typography: (
+        plain-family: $font-stack,
+        brand-family: $font-stack,
+    ),
+    density: (
+        scale: 0,
+    ),
+));
+
+$dark-theme: mat.define-theme((
+    color: (
+        theme-type: dark,
+        primary: mat.$azure-palette,
+        tertiary: mat.$orange-palette,
+    ),
+    typography: (
+        plain-family: $font-stack,
+        brand-family: $font-stack,
+    ),
+    density: (
+        scale: 0,
+    ),
+));
+
+// Dark theme mixin (reused for media query and manual override)
+@mixin dark-theme-vars {
+    @include mat.all-component-colors($dark-theme);
+    color-scheme: dark;
+
+    --surface-page: #111827;
+    --surface-card: #1e2433;
+    --surface-hover: #252d3f;
+    --text-primary: #e8eaf0;
+    --text-secondary: #9ca3af;
+    --text-body: #d1d5db;
+    --text-heading: #c8cdd5;
+    --text-hint: #9ca3af;
+    --border-color: #2d3548;
+    --border-color-hover: #4a72c4;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-card-hover: 0 4px 20px rgba(74, 114, 196, 0.15), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --skeleton-base: #2d3548;
+    --skeleton-highlight: #374151;
+    --icon-bg: rgba(74, 114, 196, 0.15);
+    --icon-bg-hover: #4a72c4;
+    --color-brand: #a7c6eb;
+    --logo-light-display: none;
+    --logo-dark-display: inline;
+}
+
+html {
+    @include mat.all-component-themes($theme);
+    @include mat.typography-hierarchy($theme);
+    color-scheme: light;
+
+    // Light theme custom properties
+    --surface-page: #f5f6fa;
+    --surface-card: #fff;
+    --surface-hover: #f9fafb;
+    --text-primary: #1a1f2e;
+    --text-secondary: #777777;
+    --text-body: #2d3748;
+    --text-heading: #374151;
+    --text-hint: #6b7280;
+    --border-color: #dedede;
+    --border-color-hover: #a7c6eb;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 4px 20px rgba(38, 72, 146, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --skeleton-base: #dedede;
+    --skeleton-highlight: #d2d2d2;
+    --icon-bg: rgba(38, 72, 146, 0.08);
+    --icon-bg-hover: #264892;
+    --color-brand: #264892;
+    --logo-light-display: inline;
+    --logo-dark-display: none;
+}
+
+// System mode: follow OS preference (no data-theme attribute set)
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+        @include dark-theme-vars;
+    }
+}
+
+// Manual dark mode override
+html[data-theme="dark"] {
+    @include dark-theme-vars;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: $font-stack;
+    background: var(--surface-page);
+    color: var(--text-primary);
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

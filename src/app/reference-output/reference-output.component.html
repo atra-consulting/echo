@@ -1,0 +1,23 @@
+<div class="paper-container">
+    <div class="paper-toolbar">
+        <span class="paper-title">Vorschau</span>
+        <div class="paper-actions">
+            <button mat-icon-button matTooltip="Bearbeiten" (click)="toggleEdit()">
+                <mat-icon>{{ isEditing ? 'visibility' : 'edit' }}</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="In die Zwischenablage kopieren" (click)="copyToClipboard()">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+    </div>
+    <p class="paper-hint">
+        Unverbindlicher Formulierungsvorschlag, keine Rechtsberatung. Bitte vor der Verwendung prüfen.
+    </p>
+    <div class="paper">
+        @if (isEditing) {
+            <textarea class="paper-edit" [(ngModel)]="dataStorageService.flowText" name="output"></textarea>
+        } @else {
+            <div class="paper-content" [innerHTML]="flowTextHtml()" (click)="onPaperClick($event)"></div>
+        }
+    </div>
+</div>

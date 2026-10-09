@@ -1,0 +1,221 @@
+@use '../app.component.scss';
+
+.page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-page);
+}
+
+// ── Top Bar ──────────────────────────────────────────────
+.top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.top-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px 32px;
+    box-sizing: border-box;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    button {
+        color: var(--text-secondary);
+    }
+}
+
+.top-bar-logo {
+    height: 28px;
+    width: auto;
+
+    &.logo-light { display: var(--logo-light-display, inline); }
+    &.logo-dark { display: var(--logo-dark-display, none); }
+}
+
+.top-bar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+}
+
+.top-bar-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    .title-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-brand);
+    }
+
+    .title-sub {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    button.mat-mdc-icon-button {
+        color: var(--text-secondary);
+    }
+}
+
+// ── Main Content ─────────────────────────────────────────
+.main-content {
+    display: flex;
+    flex: 1;
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px;
+    gap: 32px;
+    box-sizing: border-box;
+}
+
+// ── Stepper Panel ────────────────────────────────────────
+.stepper-panel {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+    padding: 8px 0;
+    overflow: hidden;
+
+    mat-stepper {
+        background: transparent;
+    }
+
+    .step-content {
+        padding: 8px 0;
+    }
+
+    .subtopic,
+    .options {
+        margin: 16px 0;
+
+        h6 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-heading);
+            margin: 0 0 8px;
+        }
+    }
+}
+
+// ── Output Panel ─────────────────────────────────────────
+.output-panel {
+    flex: 1;
+    min-width: 0;
+}
+
+// ── Skeleton ─────────────────────────────────────────────
+.skeleton-container {
+    display: flex;
+    gap: 32px;
+    width: 100%;
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 25%,
+        var(--skeleton-highlight) 50%,
+        var(--skeleton-base) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 16px;
+}
+
+.skeleton-stepper {
+    flex: 1;
+    min-height: 500px;
+}
+
+.skeleton-output {
+    flex: 1;
+    min-height: 500px;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+// ── Tablet: stack vertically ─────────────────────────────
+@media screen and (max-width: 1023px) {
+    .main-content {
+        flex-direction: column;
+        padding: 24px 16px;
+        gap: 24px;
+    }
+}
+
+// ── Mobile ───────────────────────────────────────────────
+@media screen and (max-width: 767px) {
+    .top-bar-content {
+        padding: 8px;
+    }
+
+    .top-bar-left {
+        min-width: 0;
+        gap: 4px;
+    }
+
+    .top-bar-right {
+        flex-shrink: 0;
+        gap: 0;
+        --mat-button-filled-horizontal-padding: 16px;
+    }
+
+    // Must outrank the .logo-light/.logo-dark display rules above
+    .top-bar-logo.logo-light,
+    .top-bar-logo.logo-dark,
+    .top-bar-divider {
+        display: none;
+    }
+
+    .top-bar-title {
+        min-width: 0;
+
+        .title-label {
+            font-size: 1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .title-sub { display: none; }
+    }
+
+    .main-content {
+        padding: 16px 12px;
+        gap: 16px;
+    }
+
+    .stepper-panel {
+        border-radius: 12px;
+    }
+}

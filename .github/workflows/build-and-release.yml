@@ -1,0 +1,51 @@
+name: Build and release
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: 'Build and release'
+    if: github.repository_owner == 'atra-consulting'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Setup node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+
+      # Feste Versionen, die zusammenpassen: semantic-release 25 erzeugt die Notes mit
+      # conventional-changelog-writer 8. Das Preset ab Version 10 braucht Writer 9 und
+      # liefert sonst leere Release-Notes (ab 10.4 bricht der Release ab).
+      - name: 'Install dependencies'
+        run: |
+          npm install -g \
+            semantic-release@25.0.9 \
+            @semantic-release/git@11.0.1 \
+            @semantic-release/changelog@7.0.0 \
+            @semantic-release/npm@13.2.0 \
+            conventional-changelog-conventionalcommits@9.3.1
+
+      - name: 'Release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

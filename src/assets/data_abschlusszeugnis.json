@@ -1,0 +1,703 @@
+{
+  "textblocks": [
+    {
+      "name": "intro",
+      "type": "topic",
+      "title": "1. Einleitung",
+      "options": [
+        "{salutation} {firstname} {lastname}, geboren am {birthdate} in {birthplace}, war vom {hiredate} in unserer Geschäftsbereich {business_area} als {job_title} tätig.",
+        "{salutation} {firstname} {lastname}, geboren am {birthdate} in {birthplace}, trat am {hiredate} als {job_title} in unser Unternehmen ein.",
+        "{firstname} {lastname}, geboren am {birthdate}, wurde am {hiredate} als {job_title} eingestellt.",
+        "{firstname} {lastname} war vom {hiredate} bis zum {enddate} bei uns im Rahmen eines befristeten Arbeitsverhältnisses als {job_title} beschäftigt."
+      ]
+    },
+    {
+      "name": "position",
+      "type": "topic",
+      "title": "2. Beschreibung der Position und Aufgaben",
+      "options": [
+        "{firstname} {lastname} arbeitete in der Geschäftsbereich {business_area}, vorwiegend im Kompetenzbereich {area_of_expertise}. Zu seinen Aufgaben gehörten {task_list}.",
+        "{firstname} {lastname} war in unserem Unternehmen im Kompetenzbereich {area_of_expertise} mit unterschiedlichen Aufgaben betraut. Dazu zählten: {task_list} (geordnet nach Wichtigkeit).",
+        "Das Aufgabengebiet von {firstname} {lastname} umfasste hauptsächlich: {task_list}.",
+        "Nach erfolgreicher Einarbeitung übernahm {firstname} {lastname} das Verkaufsgebiet {sales_region} mit Umsatzverantwortung. Sein Aufgabengebiet umfasste {task_list} und er wirkte an den Projekten {projects} mit.",
+        "{firstname} {lastname} war zunächst in der Geschäftsbereich {business_area} als {job_title} tätig. Zu seinen Aufgaben gehörten: {task_list}. Ab dem {promotion_date} wurde {firstname} {lastname} aufgrund seiner guten Leistungen und einer erfolgreichen internen Bewerbung in der Geschäftsbereich {business_area} als {job_title} eingesetzt.",
+        "{firstname} {lastname} war im Kompetenzbereich {area_of_expertise} tätig für Geschäftsbereich {business_area}. Er besaß Handlungsvollmacht nach §54 HGB. Seine Hauptaufgaben umfassten die selbstständige Bearbeitung von {task_list}."
+      ]
+    },
+    {
+      "name": "performance",
+      "type": "topic",
+      "title": "3. Leistungsbeurteilung",
+      "options": [
+        {
+          "name": "work_attitude",
+          "type": "subtopic",
+          "title": "3.1. Arbeitsbereitschaft",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} zeigte stets außerordentliche Initiative, großen Fleiß und Eifer.",
+                "{firstname} {lastname} war stets hoch motiviert.",
+                "{firstname} {lastname} hat sich mit großem Engagement und Erfolg in das neue Arbeitsgebiet eingearbeitet.",
+                "Schon nach sehr kurzer Einarbeitungszeit arbeitete {firstname} {lastname} vollkommen selbstständig.",
+                "{firstname} {lastname} war stets ein engagiert arbeitender und fleißiger Mitarbeiter, der aufgrund seines hohen persönlichen Einsatzes einen bedeutenden Beitrag zum Aufbau unseres {department/company_part} geleistet hat."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} zeigte stets Initiative, Fleiß und Eifer.",
+                "{firstname} {lastname} war stark motiviert und verfolgte beharrlich die gesetzten Ziele.",
+                "Die Arbeitsbereitschaft von {firstname} {lastname} war stets gut.",
+                "Nach einer kurzen Einarbeitungszeit arbeitete {firstname} {lastname} vollkommen selbstständig.",
+                "{firstname} {lastname} erfüllte seine Aufgaben mit ausdauerndem Engagement und äußerster Konzentration."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname} zeigte Initiative, Fleiß und Eifer.",
+                "{firstname} {lastname} war ein motivierter Mitarbeiter, der die ihm gesetzten Ziele verfolgte.",
+                "{firstname} {lastname}s Arbeitsmotivation/-bereitschaft/Dienstauffassung war gut.",
+                "{firstname} {lastname} hat mit hohem Einsatz einen guten Beitrag zum gemeinsamen Firmenerfolg geleistet.",
+                "{firstname} {lastname} hat sich mit Interesse in sein neues Arbeitsgebiet eingearbeitet. Nach der üblichen Einarbeitungszeit arbeitete er selbständig."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname} zeigte Eifer und Fleiß in ausreichendem Maße.",
+                "{firstname} {lastname} war ausreichend motiviert.",
+                "{firstname} {lastname} erfüllte seine Aufgaben erwartungsentsprechend.",
+                "{firstname} {lastname} verfügte über eine ausreichende Arbeitsmotivation/-bereitschaft/auffassung/Dienstauffassung."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname} zeigte bei Anleitung Eifer und Fleiß.",
+                "{firstname} {lastname} war im Allgemeinen motiviert.",
+                "{firstname} {lastname} erfüllt seine Aufgaben im Allgemeinen erwartungsentsprechend.",
+                "{firstname} {lastname}s Arbeitsauffassung entsprach im Großen und Ganzen den Erwartungen."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "job_ability",
+          "type": "subtopic",
+          "title": "3.2. Arbeitsbefähigung",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} bewältigte neue Arbeitssituationen stets sehr gut und sicher.",
+                "{firstname} {lastname} stellte an sich selbst sehr hohe fachliche Anforderungen, die er jederzeit voll erfüllte.",
+                "{firstname} {lastname} war ein ausdauernder und außerordentlich belastbarer Mitarbeiter, der auch unter schwierigen Arbeitsbedingungen alle Aufgaben stets sehr gut bewältigte.",
+                "{firstname} {lastname} verfügt über sehr große Berufserfahrung und beherrscht seinen Arbeitsbereich umfassend, sicher und vollkommen.",
+                "{firstname} {lastname} arbeitete stets sicher und selbständig.",
+                "{firstname} {lastname} hat oft neue praktikable Ideen, die er erfolgreich in seine Arbeit integriert.",
+                "{firstname} {lastname} verfügt über ein umfassendes und detailliertes Fachwissen.",
+                "{firstname} {lastname} verfügt über/hat sehr gute, fundierte Kenntnisse, die er erfolgreich einsetzt."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} bewältigte neue Arbeitssituationen stets gut.",
+                "{firstname} {lastname} stellte an sich selbst hohe Fachanforderungen, die er jederzeit voll erfüllte.",
+                "{firstname} {lastname} war ein ausdauernder und belastbarer Mitarbeiter, der auch unter schwierigen Arbeitsbedingungen alle Aufgaben stets gut bewältigte.",
+                "{firstname} {lastname} hat eine umfassende Berufserfahrung und beherrscht seinen Arbeitsbereich überdurchschnittlich.",
+                "{firstname} {lastname} arbeitet sicher und selbständig und findet sich in neuen Situationen gut zurecht.",
+                "{firstname} {lastname} setzt seine guten und fundierten Fachkenntnisse sehr erfolgreich ein.",
+                "Aufgrund der soliden Fachkenntnisse erzielte {firstname} {lastname} überdurchschnittliche Erfolge."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname} bewältigte neue Arbeitssituationen erfolgreich.",
+                "{firstname} {lastname} stellte an sich selbst hohe Fachanforderungen, die er erfüllte.",
+                "{firstname} {lastname} war ein belastbarer Mitarbeiter, der auch unter schwierigen Arbeitsbedingungen Aufgaben gut bewältigte.",
+                "{firstname} {lastname} beherrscht sein Arbeitsgebiet umfassend.",
+                "{firstname} {lastname} verfügt über gute Berufserfahrungen.",
+                "{firstname} {lastname} verfügt über fundierte Fachkenntnisse auf seinem Gebiet."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname} passte sich neuen Arbeitssituationen an.",
+                "{firstname} {lastname} wurde den fachlichen Anforderungen gerecht.",
+                "{firstname} {lastname} kann sich neuen Situationen anpassen und beherrscht seinen Arbeitsbereich entsprechend den Anforderungen.",
+                "{firstname} {lastname} verfügt über erforderliche Fähigkeiten und wurde den Anforderungen des Arbeitsplatzes gerecht.",
+                "{firstname} {lastname} hat ein solides Grundwissen in den Kompetenzbereichen {area_of_expertise}"
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname} passte sich neuen Arbeitssituationen meist ohne Schwierigkeiten an.",
+                "{firstname} {lastname} kannte die fachlichen Anforderungen seines Arbeitsplatzes.",
+                "{firstname} {lastname} beherrscht den Arbeitsbereich im Allgemeinen den Anforderungen entsprechend.",
+                "{firstname} {lastname} zeigte sich den verschiedenen Belastungen seiner Aufgaben gewachsen und hielt auch unter Termindruck durch.",
+                "{firstname} {lastname} bewältigt neue Arbeitsprobleme meist ohne Schwierigkeiten.",
+                "{firstname} {lastname} hatte Gelegenheit, sich in firmeninternen Schulungen Grundkenntnisse anzueignen."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "working_method",
+          "type": "subtopic",
+          "title": "3.3. Arbeitsweise",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} erledigte seine Aufgaben stets selbstständig mit äußerster Sorgfalt und größter Genauigkeit.",
+                "{firstname} {lastname} arbeitete stets zielstrebig, umsichtig und termingerecht.",
+                "Die Arbeitsweise von {firstname} {lastname} ist geprägt durch hohe Zielorientierung und Systematik sowie ausgezeichnetes Verantwortungs- und Kostenbewusstsein.",
+                "{firstname} {lastname} zeichnete sich bei der Erledigung aller Aufgaben durch Gewissenhaftigkeit, Genauigkeit und Umsicht aus. Auch in schwierigen Situationen kann man sich sehr gut auf ihn verlassen.",
+                "{firstname} {lastname} war ein äußerst pflichtbewusster, zuverlässiger und verschwiegener Mitarbeiter, der stets sehr konzentriert und zielgerichtet arbeitete."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} erledigte seine Aufgaben stets selbständig mit großer Sorgfalt und Genauigkeit.",
+                "Wir lernten {firstname} {lastname} als einen engagierten, aufgeschlossenen Mitarbeiter kennen, der seine Tätigkeiten mit vollem Einsatz erfolgreich ausführte.",
+                "{firstname} {lastname} ist ein engagierter und fleißiger Mitarbeiter, der sich schnell in seine neuen Arbeitsaufgaben einarbeitete und dem Betrieb auf seinem Gebiet wichtige Impulse gegeben hat.",
+                "{firstname} {lastname} zeichnete sich bei der Erledigung seiner Aufgaben durch Gewissenhaftigkeit, Genauigkeit und Umsicht aus. Auch in schwierigen Situationen kann man sich gut auf ihn verlassen."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname} erledigte seine Aufgaben stets sorgfältig und genau.",
+                "Bei der Arbeitsdurchführung war {firstname} {lastname} jederzeit zügig und termingerecht.",
+                "Wir lernten {firstname} {lastname} als einen verantwortungsbewussten, durchaus selbständig arbeitenden Mitarbeiter kennen, der die ihm zugeteilten Aufgaben und Arbeiten systematisch ausführte.",
+                "{firstname} {lastname} arbeitete sicher und selbständig."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname} erledigte seine Arbeit mit Sorgfalt und Genauigkeit.",
+                "{firstname} {lastname} erledigte seine Aufgaben termingerecht, korrekt und zufriedenstellend.",
+                "Wir lernten {firstname} {lastname} als sorgfältigen und genauen Mitarbeiter kennen.",
+                "{firstname} {lastname} zeigte keinerlei Unsicherheiten bei der Ausführung seiner Arbeitsaufgaben."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname} erledigte im Allgemeinen die ihm übertragenen Aufgaben sorgfältig und genau.",
+                "{firstname} {lastname} erledigte die ihm aufgetragenen Arbeiten mit der ihm eigenen Sorgfalt.",
+                "{firstname} {lastname} war stets um eine sorgfältige Arbeitsweise bemüht.",
+                "{firstname} {lastname} führte alle ihm übertragenen Routineaufgaben nach Vorgaben selbständig aus."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "work_success",
+          "type": "subtopic",
+          "title": "3.4. Arbeitserfolg (Arbeitsmenge, -tempo und -qualität)",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} beeindruckte uns stets durch eine sehr gute Arbeitsqualität, wobei er die selbst gesetzten und vereinbarten Ziele auch unter schwierigsten Bedingungen stets erreichte, meist sogar noch übertroffen hat.",
+                "{firstname} {lastname} war immer ein zuverlässiger, leistungsfähiger Mitarbeiter, der seine umfangreichen Arbeitsaufgaben folgerichtig, zügig und stets sehr gut erledigte.",
+                "{firstname} {lastname} findet stets hervorragende Problemlösungen, die er auch erfolgreich umsetzt.",
+                "{firstname} {lastname}s Arbeitsqualität ist stets weit überdurchschnittlich.",
+                "Engagement und Arbeitsergebnisse von {firstname} {lastname} sind stets außergewöhnlich."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname}s Arbeitsqualität war stets gut, wobei die vereinbarten Ziele von ihm auch unter schwierigen Bedingungen stets erreicht, oft auch übertroffen wurden.",
+                "{firstname} {lastname} war ein zuverlässiger, leistungsfähiger Mitarbeiter, der seine umfangreichen Arbeitsaufgaben folgerichtig, zügig und sehr gut erledigte.",
+                "Die von {firstname} {lastname} gefundenen Lösungen und Umsetzungen sind sehr gut.",
+                "{firstname} {lastname} ist ein leistungsfähiger, zuverlässiger Mitarbeiter, der seine Aufgaben stets gut erledigt.",
+                "{firstname} {lastname} zeigt stets eine überdurchschnittliche Arbeitsqualität."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname}s Arbeitsqualität war gut, wobei er die vereinbarten Ziele erreichte.",
+                "{firstname} {lastname} war ein zuverlässiger Mitarbeiter, der seine umfangreichen Arbeitsaufgaben folgerichtig, zügig und gut erledigte.",
+                "{firstname} {lastname} findet und realisiert gute, kostengünstige Lösungen.",
+                "{firstname} {lastname} arbeitet sorgfältig und genau.",
+                "Die Arbeitsqualität von {firstname} {lastname} ist überdurchschnittlich."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname}s Arbeitsqualität entsprach den Anforderungen, wobei vorgegebene Ziele in zufriedenstellendem Maße erreicht wurden.",
+                "{firstname} {lastname} war ein Mitarbeiter, der seine Arbeitsaufgaben folgerichtig erledigte.",
+                "{firstname} {lastname}s Arbeitsqualität ist zufriedenstellend.",
+                "{firstname} {lastname}s Arbeitsqualität entspricht den gestellten Erwartungen.",
+                "{firstname} {lastname} arbeitet sorgfältig und genau."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname}s Arbeitsqualität entsprach im Allgemeinen den Anforderungen/Erwartungen, wobei er stets mit Nachdruck daran arbeitete, die vorgegebenen Ziele zu erreichen.",
+                "{firstname} {lastname} war als Mitarbeiter bemüht, seine Arbeitsaufgaben im Allgemeinen folgerichtig auszuführen.",
+                "{firstname} {lastname} arbeitete entsprechend unseren allgemeinen Erwartungen.",
+                "{firstname} {lastname} zeigt im Großen und Ganzen ein zufriedenstellendes Arbeitsergebnis.",
+                "{firstname} {lastname} bemüht sich im Allgemeinen um sorgfältige, genaue Arbeit."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "special_successes",
+          "type": "options",
+          "title": "3.5. Besondere Arbeitserfolge",
+          "options": [
+            "{firstname} {lastname} erreichte trotz schwieriger Wirtschaftslage eine sehr hohe Umsatz- und Gewinnsteigerung. Damit gehörte er zu unseren besten Verkäufern.",
+            "{firstname} {lastname} erledigte vertrauliche geschäftliche Sonderaufgaben selbstständig und zügig stets zu unserer vollsten Zufriedenheit."
+          ]
+        },
+        {
+          "name": "knowledge_motivation",
+          "type": "subtopic",
+          "title": "3.6. Fachwissen/Weiterbildungsmotivation",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} verfügt über eine sehr breite und beachtliche Berufserfahrung und beherrscht seinen Arbeitsbereich stets umfassend, souverän und vollkommen.",
+                "{firstname} {lastname} ist sehr lernmotiviert und hat sich in eigener Initiative neben seinem Beruf mit hohem zeitlichen Engagement und sehr gutem Ergebnis im Kompetenzbereich {area_of_expertise} weitergebildet.",
+                "{firstname} {lastname} besitzt ein umfassendes, detailliertes und aktuelles Fachwissen im Kompetenzbereich {area_of_expertise} und wendet die vorhandenen Methoden/Instrumente und Techniken jederzeit sehr wirksam in seiner Berufspraxis an."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} verfügt über eine breite Berufserfahrung und beherrscht seinen Arbeitsbereich umfassend und überdurchschnittlich.",
+                "{firstname} {lastname} ist lernmotiviert und hat sich in eigener Initiative neben seinem Beruf mit hohem zeitlichen Engagement und gutem Ergebnis im Kompetenzbereich {area_of_expertise} weitergebildet.",
+                "{firstname} {lastname} besitzt ein umfassendes, detailliertes und aktuelles Fachwissen im Kompetenzbereich {area_of_expertise} und wendet die vorhandenen Methoden/Instrumente und Techniken jederzeit wirksam in seiner Berufspraxis an."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname} beherrschte seinen Arbeitsbereich umfassend.",
+                "{firstname} {lastname} war lernmotiviert und hat sich neben seinem Beruf im Kompetenzbereich {area_of_expertise} weitergebildet.",
+                "{firstname} {lastname} besitzt Fachwissen im Kompetenzbereich {area_of_expertise} und kann die vorhandenen Methoden/Instrumente und Techniken wirksam in seiner Berufspraxis anwenden.",
+                "{firstname} {lastname} ist mit der modernen {area_of_expertise} vertraut.",
+                "{firstname} {lastname} beherrscht die verkäuferischen Argumentationstechniken voll zufriedenstellend.",
+                "{firstname} {lastname} besitzt ein umfassendes, detailliertes und aktuelles Fachwissen im Kompetenzbereich {area_of_expertise} und wendet die vorhandenen Methoden/Instrumente und Techniken wirksam in seiner Berufspraxis an."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname} beherrschte seinen Arbeitsbereich entsprechend den Anforderungen.",
+                "{firstname} {lastname} verfügt über Kenntnisse der {area_of_expertise}.",
+                "{firstname} {lastname} hatte mit der Bearbeitung der Arbeitsaufgaben, die wir ihm übertrugen, aufgrund seiner Kenntnisse weder Probleme noch Schwierigkeiten.",
+                "{firstname} {lastname} nutzte jede sich bietende Gelegenheit, um sich in externen Weiterbildungsveranstaltungen fortzubilden. (Stichwort: flüchtet vor Arbeit)"
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname} beherrschte seinen Arbeitsbereich im Allgemeinen entsprechend den Anforderungen.",
+                "{firstname} {lastname} war stets daran interessiert, seine ausbaufähigen Fach- und Grundkenntnisse in seinem Aufgabengebiet einzusetzen.",
+                "{firstname} {lastname} war allem Neuen gegenüber sehr aufgeschlossen."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "perfomance_summary",
+          "type": "subtopic",
+          "title": "3.7. Zusammenfassende Beurteilung der Leistung",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} erfüllte seine Aufgaben stets zu unserer vollsten Zufriedenheit und war uns damit ein sehr wertvoller Mitarbeiter.",
+                "{firstname} {lastname}s Leistungen waren stets sehr gut.",
+                "Wir waren stets mit {firstname} {lastname}s Leistungen in jeder Hinsicht außerordentlich/höchst/äußerst/vorbehaltlos zufrieden. Er war ein sehr guter Mitarbeiter.",
+                "Die ihm übertragenen Arbeiten erfüllte er stets zu unserer höchsten Zufriedenheit.",
+                "{firstname} {lastname} hat als hoch qualifizierte Fachkraft im Bereich … stets zu unserer vollsten Zufriedenheit gearbeitet.",
+                "Seine Leistungen haben uns jederzeit und in jeder Hinsicht voll befriedigt und unsere ganze Anerkennung gefunden."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} erfüllte seine Aufgaben zu unserer vollen Zufriedenheit. Er war für uns ein wertvoller Mitarbeiter.",
+                "{firstname} {lastname} arbeitete selbständig, zuverlässig und stets zu unserer vollen Zufriedenheit.",
+                "{firstname} {lastname} hat als hoch qualifizierte Fachkraft im Bereich … stets zu unserer vollen Zufriedenheit gearbeitet.",
+                "{firstname} {lastname}s Leistungen haben stets unsere volle Anerkennung gefunden. Damit gehörte er zu unseren guten Mitarbeitern.",
+                "{firstname} {lastname} hat als hoch qualifizierte Fachkraft im Bereich … stets zu unserer vollsten Zufriedenheit gearbeitet.",
+                "Seine Leistungen haben unsere volle Anerkennung gefunden. {firstname} {lastname} gehörte stets zu unseren guten ..."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname}s Leistungen waren gut.",
+                "{firstname} {lastname}s Leistungen sind voll befriedigend.",
+                "Wir waren mit {firstname} {lastname}s Leistungen jederzeit zufrieden.",
+                "{firstname} {lastname} hat als qualifizierte Fachkraft im Bereich … zu unserer vollen Zufriedenheit gearbeitet."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname}s Arbeiten waren befriedigend.",
+                "{firstname} {lastname}s hat alle Arbeiten stets ordnungsgemäß erledigt.",
+                "{firstname} {lastname}s Leistungen entsprachen unseren Erwartungen.",
+                "{firstname} {lastname} hat die ihm übertragenen Arbeiten zu unserer Zufriedenheit erledigt."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname}s Leistungen haben unseren Erwartungen im Allgemeinen entsprochen.",
+                "{firstname} {lastname} führte die ihm übertragenen Aufgaben mit großem Fleiß und Interesse durch.",
+                "Insgesamt haben wir keine Bedenken, {firstname} {lastname}s Leistungen als zufriedenstellend zu bezeichnen."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "behavior_evaluation",
+      "type": "topic",
+      "title": "4. Verhaltensbeurteilung",
+      "options": [
+        {
+          "name": "behavior_superiors_colleagues",
+          "type": "subtopic",
+          "title": "4.1. Verhalten gegenüber Vorgesetzten, Kollegen und Dritten",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname}s Verhalten gegenüber Vorgesetzten, Kollegen und Kunden (Klienten, Mandanten, Patienten etc.) war stets vorbildlich/einwandfrei. Er trug in starkem Maße zu einem harmonischen Betriebsklima bei.",
+                "{firstname} {lastname}s Zusammenarbeit mit Vorgesetzten und Kollegen war stets sehr gut. Besonders hervorzuheben ist auch seine jederzeit sehr gute Zusammenarbeit mit unseren . . . , auf deren Anliegen er flexibel einging.",
+                "{firstname} {lastname} war wegen seiner freundlichen und zuvorkommenden Art stets sehr geschätzt und beliebt bei seinen Vorgesetzten, Kollegen und . . . ",
+                "{firstname} {lastname} war wegen seiner stets verbindlichen, kooperativen und hilfsbereiten Art seinen Vorgesetzten eine äußerst wertvolle Unterstützung und bei den Kollegen immer/jederzeit sehr geschätzt. Auch sein Verhalten gegenüber . . . (z. B. Klienten) war vorbildlich. Im Umgang mit anspruchsvollen und schwierigen . . . bewies er jederzeit Gewandtheit und hervorragendes diplomatisches Geschick.",
+                "{firstname} {lastname} ist ein verantwortungsbewusster und zuverlässiger Mitarbeiter, der zu seinen Vorgesetzten, Kollegen und . . . stets ein sehr gutes Verhältnis hatte."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname}s Verhalten gegenüber Vorgesetzten, Kollegen und ... war einwandfrei/vorbildlich. Er trug wesentlich zu einem harmonischen Arbeitsklima bei.",
+                "{firstname} {lastname}s Zusammenarbeit mit Vorgesetzten und Kollegen war stets gut. Besonders hervorzuheben ist auch seine jederzeit gute Zusammenarbeit mit unseren . . . auf deren Anliegen er flexibel einging.",
+                "{firstname} {lastname} wurde in seiner Arbeitsgruppe geschätzt, wobei sein Verhalten gegenüber Vorgesetzten, Kollegen und . . . vorbildlich war.",
+                "Aufgrund seiner kooperativen Haltung war {firstname} {lastname} stets bei Vorgesetzten, Kollegen und . . . anerkannt und beliebt."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "description": "(Durch eine Umstellung der Reihenfolge in den Personengruppen Vorgesetzte, Kollegen usw. wird Kritik am Verhalten zum Ausdruck gebracht, ebenso durch die sogenannte Negationstechnik, wie z. B. mit der Formulierung „kein Anlass zur Beanstandung/Klage/Tadel“ etc.)",
+              "options": [
+                "{firstname} {lastname}s Zusammenarbeit mit Vorgesetzten und Kollegen war gut. Hervorzuheben ist auch seine gute Zusammenarbeit mit unseren . . .",
+                "{firstname} {lastname}s Verhalten gegenüber Kollegen, Vorgesetzten und . . . war gut/vorbildlich/einwandfrei.",
+                "{firstname} {lastname}s Zusammenarbeit mit Kollegen und Vorgesetzten ist als gut/verbindlich/korrekt zu bezeichnen.",
+                "{firstname} {lastname}s Führung war jederzeit tadellos/ohne Beanstandung.",
+                "{firstname} {lastname} ist ein angenehmer Mitarbeiter gewesen, der sich im Kollegenkreis und bei Vorgesetzten allgemeiner Beliebtheit erfreute."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "description": "(Dies wird deutlich, wenn Vorgesetzte oder Kollegen nicht erwähnt werden – das ist die sogenannte Leerstellen - Technik)",
+              "options": [
+                "{firstname} {lastname}s Verhalten gegenüber Kollegen war vorbildlich/einwandfrei.",
+                "{firstname} {lastname}s Verhalten gegenüber Vorgesetzten und Kollegen war einwandfrei. Mit . . . hat er zu unserer Zufriedenheit zusammengearbeitet.",
+                "{firstname} {lastname}s Verhalten gegenüber Vorgesetzten war vorbildlich/einwandfrei.",
+                "{firstname} {lastname}s Zusammenarbeit mit Kollegen und Vorgesetzten war stets befriedigend.",
+                "{firstname} {lastname}s Führung war stets tadellos. Gegenüber Kollegen verhielt er sich immer korrekt."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "description": "( Das kann auch durch eine fehlende Aussage zum Sozialverhalten ausgedrückt werden – siehe auch hier wieder: sogenannte Leerstellentechnik)",
+              "options": [
+                "{firstname} {lastname}s Zusammenarbeit mit Kollegen war insgesamt zufriedenstellend. Dies galt in der Regel auch für den Umgang mit unseren . . . .",
+                "{firstname} {lastname}s Führung gab uns selten Anlass zu Beanstandungen.",
+                "{firstname} {lastname}s Verhalten gegenüber Vorgesetzten war unbelastet.",
+                "{firstname} {lastname} war stets um ein taktvolles Verhalten bemüht."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "social_behavior",
+          "type": "subtopic",
+          "title": "4.2. Weitere persönliche und soziale Verhaltensaspekte",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "{firstname} {lastname} fügte sich stets vorbildlich in die unterschiedlichen Arbeitsteams ein und ist mit Mitarbeitern aller Hierarchieebenen jederzeit sehr gut zurechtgekommen.",
+                "Mit {firstname} {lastname}s exzellenten Umgangsformen waren wir stets außerordentlich zufrieden.",
+                "Besonders hervorzuheben ist sein außerordentliches pädagogisches Geschick. Unsere Auszubildenden haben jederzeit sehr gerne von ihm gelernt."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "{firstname} {lastname} fügte sich vorbildlich in die unterschiedlichen Arbeitsteams ein und ist mit Mitarbeitern aller Hierarchieebenen jederzeit gut zurechtgekommen.",
+                "Mit {firstname} {lastname}s guten Umgangsformen waren wir stets voll zufrieden.",
+                "{firstname} {lastname} bearbeitete alle Personalfragen absolut vertraulich und hielt sich jederzeit strikt an die Datenschutzbestimmungen."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "{firstname} {lastname} fügte sich gut in die unterschiedlichen Arbeitsteams ein und ist mit Mitarbeitern aller Hierarchieebenen zurechtgekommen.",
+                "Mit {firstname} {lastname}s Umgangsformen waren wir voll zufrieden."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "{firstname} {lastname} fügte sich zu unserer Zufriedenheit in die unterschiedlichen Arbeitsteams ein.",
+                "Mit den Umgangsformen von {firstname} {lastname} waren wir zufrieden.",
+                "Wir lernten {firstname} {lastname} als einen meinungs- und diskussionsfreudigen Mitarbeiter kennen, der Kritik üben, aber auch akzeptieren konnte."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "{firstname} {lastname} fügte sich im Großen und Ganzen zufriedenstellend in die unterschiedlichen Arbeitsteams ein.",
+                "Mit den Umgangsformen von {firstname} {lastname} waren wir im Allgemeinen zufrieden.",
+                "{firstname} {lastname} fiel uns besonders aufgrund seiner Pünktlichkeit auf. Der Vollständigkeit halber sei aber auch betont, dass er stets ordentlich und fleißig war."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "conclusion",
+      "type": "topic",
+      "title": "5. Abschluss",
+      "options": [
+        {
+          "name": "resignation_with_reason",
+          "type": "subtopic",
+          "title": "5.1. Kündigung durch den Arbeitnehmer mit Begründung",
+          "options": [
+            "{firstname} {lastname} verlässt unser Unternehmen am heutigen Tag, um sich beruflich zu verändern.",
+            "{firstname} {lastname} verlässt uns auf eigenen Wunsch, um sich neuen beruflichen Aufgaben zu stellen.",
+            "{firstname} {lastname} scheidet auf eigenen Wunsch aus, um sich beruflich zu verbessern.",
+            "{firstname} {lastname} verlässt uns, um in einem anderen Unternehmen eine weiterführende Aufgabe zu übernehmen.",
+            "{firstname} {lastname} verlässt uns auf eigenen Wunsch, um . . . Er hatte das Arbeitsverhältnis fristgemäß zum {enddate} gekündigt. Aufgrund der Tatsache, dass sein neuer Arbeitgeber ihn bat, möglichst frühzeitig in das neue Unternehmen zu wechseln, waren wir trotz gewisser Überbrückungsschwierigkeiten für uns aufgrund des sehr guten wechselseitigen Verhältnisses und in bester Absicht für {firstname} {lastname} mit einem vorzeitigen Wechsel einverstanden.",
+            "Zum {enddate} hat {firstname} {lastname} das mit uns bestehende Arbeitsverhältnis fristgemäß gekündigt, um . . . (z.B. ein Studium aufzunehmen, sich selbständig zu machen/einen durch Berufswechsel des Ehepartners bedingten Ortswechsel mit zu vollziehen etc.).",
+            "{firstname} {lastname} hat das Beschäftigungsverhältnis fristgemäß auf eigenen Wunsch gelöst, um sich mit Ablauf des Erziehungsurlaubes ganz der Familie zu widmen.",
+            "{firstname} {lastname} verlässt uns auf eigenen Wunsch, um . . . (z. B. sich finanziell zu verbessern/beruflich weiterzukommen/neue Aufstiegschancen wahrzunehmen, die wir ihm nicht bieten konnten)."
+          ]
+        },
+        {
+          "name": "resignation_without_reason",
+          "type": "subtopic",
+          "title": "5.2. Kündigung durch den Arbeitnehmer ohne Begründung",
+          "description": "Die Formulierungen „trennt sich“ und „Entschluss“ können eine vom Arbeitgeber geforderte bzw. erbetene Eigenkündigung andeuten.",
+          "options": [
+            "{firstname} {lastname} scheidet auf eigenen Wunsch aus unserem Unternehmen aus.",
+            "Auf eigenen Wunsch beendete {firstname} {lastname} zum {enddate} seine Tätigkeit bei uns.",
+            "{firstname} {lastname} trennt sich zum {enddate} von unserer Firma aus eigenem Entschluss.",
+            "{firstname} {lastname} verlässt unsere Firma zum {enddate}"
+          ]
+        },
+        {
+          "name": "resignation_without_notice_period",
+          "type": "subtopic",
+          "title": "5.3. Kündigung durch den Arbeitnehmer bei Nichteinhaltung der Kündigungsfrist",
+          "options": [
+            "{firstname} {lastname} beendete auf eigenen Wunsch das Arbeitsverhältnis zum {enddate} ",
+            "Um in einem anderen Unternehmen seinen Berufsweg fortzusetzen, verließ uns {firstname} {lastname} vorzeitig am {enddate}",
+            "{firstname} {lastname} schied zum {enddate} auf eigenen Wunsch aus unserem Unternehmen aus, um sich umgehend einer neuen Arbeitsaufgabe stellen zu können."
+          ]
+        },
+        {
+          "name": "termination_by_agreement",
+          "type": "subtopic",
+          "title": "5.4. Beendigung des Arbeitsverhältnisses durch Aufhebungsvertrag oder Vergleich",
+          "options": [
+            "Das Arbeitsverhältnis endet mit Datum vom {enddate} in beiderseitigem bestem Einvernehmen.",
+            "Auf Wunsch von Herrn {lastname} endet das Arbeitsverhältnis in beiderseitigem guten Einvernehmen am {enddate}",
+            "Das Ausscheiden von {firstname} {lastname} erfolgte in beiderseitigem guten Einvernehmen am {enddate}",
+            "Am {enddate} endet das Arbeitsverhältnis im gegenseitigen Einvernehmen.",
+            "Das Arbeitsverhältnis endet zum {enddate} durch einvernehmliche Trennung. "
+          ],
+          "optiongroup": [
+            "Eventuell problematisch",
+            "Sehr wahrscheinlich problematisch",
+            "Klar problematisch"
+          ]
+        },
+        {
+          "name": "company_termination_due_to_economic_reasons",
+          "type": "subtopic",
+          "title": "5.5. Betriebsbedingte Kündigung durch den Arbeitgeber",
+          "options": [
+            "Zu unserem Bedauern musste das Arbeitsverhältnis mit Herrn {lastname} fristgemäß und betriebsbedingt gekündigt werden.",
+            "Das Ausscheiden von {firstname} {lastname} erfolgte betriebsbedingt unter Einhaltung sozialer Auswahlkriterien.",
+            "Nach erfolgter Umstrukturierung unseres Geschäftsbereiches {business_area}  konnten wir {firstname} {lastname} keinen neuen Arbeitsplatz in unserem Unternehmen anbieten und mussten daher leider das Arbeitsverhältnis betriebsbedingt beenden."
+          ]
+        },
+        {
+          "name": "other_company_termination_reasons",
+          "type": "subtopic",
+          "title": "5.6. Andere Formen der Kündigung durch den Arbeitgeber",
+          "options": [
+            "Das Arbeitsverhältnis endete zum {enddate}",
+            "Die Auflösung des Arbeitsverhältnisses erfolgte zum {enddate}",
+            "Das Arbeitsverhältnis endet mit Ablauf des Monats . . . innerhalb der Probezeit. Wir bedauern, dass es nicht zu einer Festanstellung gekommen ist."
+          ]
+        },
+        {
+          "name": "immediate_company_termination",
+          "type": "subtopic",
+          "title": "5.7. Fristlose Kündigung durch den Arbeitgeber",
+          "options": [
+            "Vorzeitig/ungeplant/unwiderruflich/kurzfristig mussten wir uns am {enddate} von {firstname} {lastname} trennen.",
+            "Das Arbeitsverhältnis endet aus besonderen Gründen.",
+            "Bedauerlicherweise sahen wir uns gezwungen, zum {enddate} („krummes“ Datum) das Arbeitsverhältnis zu beenden."
+          ]
+        },
+        {
+          "name": "contract_end",
+          "type": "subtopic",
+          "title": "5.8. Beendigung des Arbeitsverhältnisses durch Vertragsablauf (Befristung)",
+          "options": [
+            "Mit Ablauf der vereinbarten Zeit beenden wir das befristete Arbeitsverhältnis mit {firstname} {lastname}.",
+            "Zu unserem großen Bedauern können wir {firstname} {lastname} z. Z. keine Dauerbeschäftigung bieten, so dass das Arbeitsverhältnis mit Ablauf der vereinbarten befristeten Zeitspanne zum . . . endet."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "farewell",
+      "type": "topic",
+      "title": "6. Dankes-Bedauern-Formel",
+      "options": [
+        {
+          "type": "subtopic",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "Wir bedauern, in Herrn {firstname} {lastname} einen ausgezeichneten Mitarbeiter/eine sehr gute Fachkraft zu verlieren, und danken ihm für seine stets vorbildlichen Leistungen in unserem Bereich/Unternehmen . . .",
+                "Wir danken für die stets sehr gute Zusammenarbeit und bedauern sehr, {firstname} {lastname} zu verlieren. Für seine Entscheidung, unser Unternehmen zu verlassen, haben wir aber Verständnis.",
+                "Mit Bedauern über sein Ausscheiden danken wir {firstname} {lastname} für seine stets sehr guten Leistungen.",
+                "Für die langjährige ergebnisreiche und wertvolle Zusammenarbeit sind wir {firstname} {lastname} zu Dank verpflichtet. Wir bedauern es außerordentlich, diesen ausgezeichneten Mitarbeiter zu verlieren.",
+                "Wir danken {firstname} {lastname} für die stets hervorragende Zusammenarbeit. Wir verlieren mit ihm einen erfahrenen Spezialisten, verstehen aber, dass er im Rahmen seiner beruflichen Entwicklung die ihm gebotene Chance wahrnehmen möchte."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "Wir bedauern, in Herrn {firstname} {lastname} einen guten Mitarbeiter/eine gute Fachkraft zu verlieren, und danken ihm für die stets gute Leistung/Leitung im Kompetenzbereich {area_of_expertise}",
+                "Wir danken für die stets gute Zusammenarbeit und bedauern sehr, {firstname} {lastname} zu verlieren. Für seine Entscheidung, unser Unternehmen zu verlassen, haben wir aber Verständnis.",
+                "Mit Bedauern über sein Ausscheiden danken wir {firstname} {lastname} für seine stets guten Leistungen.",
+                "Für die langjährige, erfolgreiche Zusammenarbeit sind wir {firstname} {lastname} zu Dank verpflichtet. Wir bedauern es außerordentlich, diesen guten Mitarbeiter zu verlieren.",
+                "Wir wissen um die besonderen Verdienste, die sich {firstname} {lastname} im Kompetenzbereich {area_of_expertise} für unser Unternehmen erworben hat. In dankbarer Anerkennung seiner Leistungen bedauern wir seine Entscheidung, unser Haus zu verlassen."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "options": [
+                "Wir bedauern, in Herrn {firstname} {lastname} eine gute Fachkraft zu verlieren, und danken ihm für die gute Leistung im Kompetenzbereich {area_of_expertise}",
+                "Wir danken für die gute Zusammenarbeit und bedauern, {firstname} {lastname} zu verlieren. Für seine Entscheidung, unser Unternehmen zu verlassen, haben wir aber Verständnis.",
+                "Mit Bedauern über sein Ausscheiden danken wir {firstname} {lastname} für seine guten Leistungen.",
+                "Für die langjährige Zusammenarbeit sind wir {firstname} {lastname} dankbar. Wir bedauern, diesen Mitarbeiter zu verlieren."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "Für die Leistung/Mitarbeit im Kompetenzbereich {area_of_expertise} bedanken wir uns.",
+                "Wir bedanken uns für die gute/angenehme Zusammenarbeit.",
+                "Wir anerkennen die Leistungen von Herrn {firstname} {lastname}."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "description": "(Eine mangelhafte Beurteilung kann und wird auch häufig durch das Weglassen der Dankes- Bedauern -Formel ausgedrückt.)",
+              "options": [
+                "Wir bedanken uns für die Zusammenarbeit.",
+                "Wir bedanken uns für das gezeigte Interesse, ebenso wie für die Zusammenarbeit.",
+                "An dieser Stelle sagen wir Dank.",
+                "Wir bedauern, auf die weitere Zusammenarbeit mit {firstname} {lastname} verzichten zu müssen."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "future_wishes",
+      "type": "topic",
+      "title": "7. Zukunftswünsche",
+      "options": [
+        {
+          "type": "subtopic",
+          "options": [
+            {
+              "title": "sehr gut",
+              "options": [
+                "Wir wünschen {firstname} {lastname} auf seinem weiteren Berufs- und Lebensweg alles erdenklich Gute und weiterhin viel Erfolg.",
+                "Für die Zukunft wünschen wir {firstname} {lastname} beruflich und privat weiterhin alles Gute und viel Erfolg.",
+                "Für seinen weiteren beruflichen Werdegang wünschen wir {firstname} {lastname} alles Gute, viel Glück und Erfolg."
+              ]
+            },
+            {
+              "title": "noch gut",
+              "options": [
+                "Wir wünschen {firstname} {lastname} auf seinem weiteren Berufs- und Lebensweg alles Gute.",
+                "Wir wünschen diesem vorbildlichen Mitarbeiter beruflich und persönlich alles Gute."
+              ]
+            },
+            {
+              "title": "knapp befriedigend",
+              "description": "(Die Umkehrung von erst privat und dann beruflich, muss als Geringschätzung gewertet werden.)",
+              "options": [
+                "Wir wünschen {firstname} {lastname} für seine weitere Arbeit/weitere Tätigkeit alles Gute.",
+                "Wir wünschen {firstname} {lastname} auf seinem weiteren Lebens- und Berufsweg alles Gute."
+              ]
+            },
+            {
+              "title": "kaum noch ausreichend",
+              "options": [
+                "Wir wünschen {firstname} {lastname} alles Gute.",
+                "Wir wünschen alles Gute.",
+                "Wir wünschen {firstname} {lastname} für die Zukunft das Allerbeste."
+              ]
+            },
+            {
+              "title": "mangelhaft",
+              "options": [
+                "Wir wünschen {firstname} {lastname} auf seinem weiteren Berufs- und Lebensweg außerhalb unserer Firma alles Gute.",
+                "Wir wünschen {firstname} {lastname} alles Gute und für die Zukunft auch Erfolg.",
+                "Wir wünschen {firstname} {lastname}, dass er in seinem neuen Arbeitsgebiet seine Leistungsfähigkeit voll entfalten kann.",
+                "Unsere besten Wünsche begleiten ihn.",
+                "Wir wünschen diesem anspruchsvollen und kritischen Mitarbeiter für die Zukunft alles Gute.",
+                "Für die Zukunft wünschen wir {firstname} {lastname} alles nur erdenklich Gute."
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

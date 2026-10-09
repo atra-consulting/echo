@@ -1,0 +1,65 @@
+# =============================================================================
+# Stellt die Instanz von atra.consulting auf Google Cloud Run bereit.
+#
+# Ablauf: Push auf main → Anmeldung ohne Schlüssel per Workload Identity
+# Federation → Docker-Build → Push in die Artifact Registry → Deploy auf
+# Cloud Run. Die Secrets setzt die interne GCP-Plattform von atra.consulting.
+# In Forks läuft der Job nicht.
+# =============================================================================
+
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # Pflicht für WIF
+
+env:
+  # Cloud-Run-Dienst und Image heißen echo, unabhängig vom Repo- und App-Namen.
+  SERVICE_NAME: echo
+  REGION: europe-west1
+
+jobs:
+  deploy:
+    if: github.repository_owner == 'atra-consulting'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bei GCP anmelden (WIF, schlüssellos)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Cloud SDK einrichten
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Docker für Artifact Registry konfigurieren
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Image bauen und pushen
+        run: |
+          IMAGE_URL="${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          docker build -t "$IMAGE_URL" .
+          docker push "$IMAGE_URL"
+          docker tag "$IMAGE_URL" "${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest"
+          docker push "${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest"
+          echo "IMAGE_URL=$IMAGE_URL" >> "$GITHUB_ENV"
+
+      - name: Auf Cloud Run deployen
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMAGE_URL }}
+          # service_account bewusst nicht gesetzt: Der Dienst behält sein
+          # bestehendes Runtime-Dienstkonto.

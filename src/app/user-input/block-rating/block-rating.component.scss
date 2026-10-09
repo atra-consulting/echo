@@ -1,0 +1,16 @@
+@use '../../app.component.scss';
+
+.radio-button {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 4px;
+}
+
+mat-hint {
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    color: var(--text-hint);
+    line-height: 1.5;
+}

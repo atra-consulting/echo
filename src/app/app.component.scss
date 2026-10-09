@@ -1,0 +1,18 @@
+.flex-row {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+mat-form-field {
+    flex: 1 1 100%;
+}
+
+@media screen and (max-width: 767px) {
+    .flex-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
