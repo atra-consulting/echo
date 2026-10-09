@@ -2,7 +2,7 @@
   "name": "zeugnisgenerator",
   "description": "Arbeitszeugnisse (Abschluss- und Zwischenzeugnis) aus Textbausteinen zusammenstellen",
   "license": "MIT",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
