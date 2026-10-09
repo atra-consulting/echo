@@ -1,0 +1,77 @@
+# Automatische Dependency-Updates via Dependabot (Vorbild: atra-homepage).
+#
+# Zwei Ökosysteme:
+#   - github-actions: monatlich. Die Workflows stehen noch auf checkout@v4,
+#     setup-node@v4 und google-github-actions/*@v2, der erste Lauf bringt also
+#     Major-PRs.
+#   - npm: wöchentlich, Minor-/Patch-Bumps gebündelt in EINEM Sammel-PR,
+#     Angular-Majors als Familie (siehe groups).
+#
+# ci.yml und lint-commit-messages.yml prüfen die PRs. Die Commit-Präfixe sind
+# Conventional Commits; `chore` löst bei semantic-release kein Release aus,
+# deployt wird trotzdem bei jedem Push auf main (deploy.yml).
+# Dependabot-Commits sind in commitlint.config.js von der Prüfung ausgenommen,
+# weil ihre Bodies (Changelog-Links) länger als 100 Zeichen sind.
+#
+# Warum `cooldown`: Das häufigste npm-Angriffsmuster ist ein gekapertes
+#   Maintainer-Konto, das eine bösartige NEUE Version publiziert. Solche
+#   Versionen fallen meist binnen Stunden bis Tagen auf und werden entfernt.
+#   Mit Cooldown erscheinen sie nie als PR. Gilt nur für Versions-Updates,
+#   Security-Updates (aus Dependabot Alerts) kommen weiterhin sofort.
+#
+# Nicht abgedeckt: das Docker-Basis-Image. node:22-alpine ist nicht per Digest
+#   gepinnt, jeder Build zieht also ohnehin den aktuellen Patch-Stand. Den
+#   Node-Major hebt man bewusst von Hand an, zusammen mit node-version in
+#   ci.yml.
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: 'chore(ci)'
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Berlin'
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-patch-days: 5
+      semver-minor-days: 7
+      semver-major-days: 14
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      minor-und-patch:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Angular-Pakete sind über peerDependencies gekoppelt und einzeln nicht
+      # installierbar. Majors brauchen ohnehin `ng update` (Migrationen), der
+      # PR ist eher Erinnerung als fertiger Merge-Kandidat.
+      angular-major:
+        applies-to: version-updates
+        update-types:
+          - 'major'
+        patterns:
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - 'typescript'
+          - 'zone.js'
+      commitlint-major:
+        applies-to: version-updates
+        update-types:
+          - 'major'
+        patterns:
+          - '@commitlint/*'
+      # Majors außerhalb der Gruppen bekommen je einen eigenen PR.
