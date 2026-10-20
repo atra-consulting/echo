@@ -39,3 +39,9 @@ jobs:
 
       - name: 'Test'
         run: npx ng test --watch=false --browsers=ChromeHeadless
+
+      - name: 'Build MCP server'
+        run: npm run build:mcp
+
+      - name: 'Test MCP server'
+        run: npm run test:mcp

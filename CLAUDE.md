@@ -22,7 +22,8 @@ The tool gives no legal advice. The README and the UI carry a "keine Rechtsberat
 - **Run tests**: `ng test` (Karma + Jasmine, watch mode in Chrome); single run: `ng test --watch=false --browsers=ChromeHeadless`
 - **Run single test**: `ng test --watch=false --browsers=ChromeHeadless --include='src/app/path-to-component/**/*.spec.ts'` (quote the glob, zsh aborts on an unquoted one)
 - **Production serve**: `npm start` (uses `serve` on port 8080)
-- **CI**: `.github/workflows/ci.yml` runs `npm ci`, the build and the tests on Node 22 (npm 10) for every pull request and push to main, also in forks.
+- **MCP server**: `npm run build:mcp` (type check with `mcp/tsconfig.json`, esbuild bundle to `dist/mcp/main.cjs`), `npm run test:mcp` (node:test specs in `mcp/*.spec.ts`, bundled to `dist/mcp-test`), `MCP_AUTH=none npm run start:mcp` (local, no auth, 127.0.0.1:8080/mcp)
+- **CI**: `.github/workflows/ci.yml` runs `npm ci`, the build and the tests of app and MCP server on Node 22 (npm 10) for every pull request and push to main, also in forks.
 - **Dependencies**: change them only with npm 10 (e.g. `npx -y npm@10 install <pkg>`). The Docker build uses npm 10, and `package-lock.json` (lockfileVersion 2) must stay installable with it; npm 11 drops nested entries that npm 10 needs. Otherwise install with `npm ci`; even a plain `npm install` with npm 11 rewrites the lockfile.
 
 ## Architecture
@@ -39,9 +40,19 @@ All components use standalone architecture with OnPush change detection.
 
 ### Services
 
-- **DataStorageService** (`data-storage.service.ts`): Central state management. Loads JSON templates from `src/assets/`, manages form data and selected text blocks, persists to localStorage, handles placeholder replacement (`{firstname}`, `{lastname}`, etc.) and final text assembly.
+- **reference-text.ts**: Framework-free assembly of the reference text (placeholders, order of topics and subtopics, choice of the female text modules). Shared by the app and the MCP server; must not import Angular or browser APIs.
+- **DataStorageService** (`data-storage.service.ts`): Central state management. Loads JSON templates from `src/assets/`, manages form data and selected text blocks, persists to localStorage, and delegates placeholder replacement (`{firstname}`, `{lastname}`, etc.) and text assembly to `reference-text.ts`.
 - **GoogleAuthService** (`google-auth.service.ts`): Google OAuth2 sign-in/sign-out via Google Identity Services (GIS) token client. Loads the GIS script on demand, exposes `getAccessToken()` for API calls.
 - **GoogleDocService** (`google-doc.service.ts`): Exports to Google Docs (copies the template via Drive API, inserts text into the copy) and Google Sheets (creates spreadsheet, appends form data + selections). Plain fetch against the Google REST APIs, no client library.
+
+### MCP Server (`mcp/`)
+
+Optional Node server that lets AI agents (claude.ai connector, Claude Code) assemble references: MCP TypeScript SDK, Streamable HTTP, stateless (new server and transport per request). Bundled with esbuild into one file that includes the dependencies and the text modules; `mcp/Dockerfile` builds its image from the repository root.
+
+- **server.ts**: Tools `list_text_modules` (catalog with numbered sentences) and `compose_reference` (selections by topic/subtopic/rating/sentence number, returns text and missing placeholders), plus agent instructions. Tool descriptions and results carry the "keine Rechtsberatung" disclaimer.
+- **text-modules.ts**: Catalog view of the text modules and translation of selections into `SelectedBlocks`, collecting all problems. Topics with a single unnamed subtopic (farewell, future_wishes) expose their rating levels directly.
+- **auth.ts**: OAuth authorization server that delegates sign-in to Google (OAuth proxy, Google has no dynamic client registration). Accepts only verified accounts of `GOOGLE_ALLOWED_DOMAIN`. Stateless: client ids, codes and tokens are encrypted JWTs (jose, `TOKEN_SECRET`); refresh re-checks the account with Google. Client registration is limited to the claude.ai callbacks and loopback URIs.
+- **app.ts** / **main.ts**: Express app (auth routes, bearer auth, `/mcp`) and entry point reading the environment (`PORT`, `MCP_AUTH`, `PUBLIC_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_ALLOWED_DOMAIN`, `TOKEN_SECRET`). Never log request bodies; they contain personal data.
 
 ### Configuration
 
@@ -49,7 +60,7 @@ All components use standalone architecture with OnPush change detection.
 
 ### Data Templates
 
-Four JSON files in `src/assets/` (`data_abschlusszeugnis.json`, `data_zwischenzeugnis.json` and their `data_female_*` variants, which `IntroComponent` requests when the salutation "Frau" is selected; sentences picked before keep their wording) define structured text blocks organized by topic (intro, position, performance, behavior_evaluation, conclusion, farewell, future_wishes). Only the intro and position topics list sentences directly; every other topic must contain subtopics (`user-input.component.html` renders nothing else), some with rating levels (sehr gut, noch gut, etc.). Placeholder tokens are replaced with form values at runtime; only names matching `{\w+}` are placeholders, so `{department/company_part}` in the shipped modules stays in the text verbatim. The text modules are not MIT-licensed; do not change their content as part of code changes.
+Four JSON files in `src/assets/` (`data_abschlusszeugnis.json`, `data_zwischenzeugnis.json` and their `data_female_*` variants, which `IntroComponent` requests when the salutation "Frau" is selected; sentences picked before keep their wording) define structured text blocks organized by topic (intro, position, performance, behavior_evaluation, conclusion, farewell, future_wishes). Only the intro and position topics list sentences directly; every other topic must contain subtopics (`user-input.component.html` renders nothing else), some with rating levels (sehr gut, noch gut, etc.). Placeholder tokens are replaced with form values at runtime; only names matching `{\w+}` are placeholders, so `{department/company_part}` in the shipped modules stays in the text verbatim. The text modules are not MIT-licensed; do not change their content as part of code changes. MCP tests derive their selections from the catalog so they stay independent of the wording.
 
 ## Conventions
 

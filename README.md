@@ -40,6 +40,7 @@ die Textbausteine (siehe [Lizenz](#lizenz)).
 - [Betrieb mit Docker](#betrieb-mit-docker)
   - [Eigene Instanz](#eigene-instanz)
 - [Google-Export](#google-export)
+- [MCP-Server](#mcp-server)
 - [Textbausteine](#textbausteine)
 - [Datenschutz](#datenschutz)
 - [Tech-Stack](#tech-stack)
@@ -66,6 +67,8 @@ die Textbausteine (siehe [Lizenz](#lizenz)).
 - **Google-Export (optional)** — das Zeugnis als Google-Dokument, die Eingaben als Google-Tabelle. Mit der
   mitgelieferten Konfiguration nur für Konten von atra.consulting (siehe [Google-Export](#google-export)).
 - **Helles und dunkles Design** — nach Systemeinstellung oder fest gewählt.
+- **MCP-Server (optional)** — KI-Agenten wie Claude setzen Zeugnisse aus denselben Textbausteinen zusammen (siehe
+  [MCP-Server](#mcp-server)).
 
 Änderungen im Bearbeitungsmodus speichert die App nicht. Verlässt du den Bearbeitungsmodus, zeigt die Vorschau wieder
 den erzeugten Text; Kopieren und der Export nach Google Docs übernehmen aber deine Änderungen. Sobald du eine Eingabe
@@ -107,13 +110,16 @@ npm run dev
 | `npx ng test --watch=false --browsers=ChromeHeadless` | Unit-Tests einmal ohne Browserfenster                  |
 | `npm run build`                                       | Produktions-Build nach `dist/zeugnisgenerator/browser` |
 | `npm start`                                           | liefert den Build auf http://localhost:8080/ aus       |
+| `npm run build:mcp`                                   | MCP-Server prüfen und nach `dist/mcp` bündeln          |
+| `npm run test:mcp`                                    | Tests des MCP-Servers mit dem Test-Runner von Node.js  |
+| `npm run start:mcp`                                   | gebündelten MCP-Server starten                         |
 
 Einzelne Tests startest du mit `--include`, zum Beispiel
 `npx ng test --watch=false --browsers=ChromeHeadless --include='src/app/user-input/**/*.spec.ts'`.
 
 Der Produktions-Build warnt, dass das Initial-Bundle das Budget von 1 MB knapp überschreitet; das ist bekannt.
 Bei jedem Pull Request und jedem Push auf `main` führt der Workflow `.github/workflows/ci.yml` Build und Unit-Tests
-aus, mit Node.js 22 und damit npm 10 wie im Docker-Image.
+von App und MCP-Server aus, mit Node.js 22 und damit npm 10 wie im Docker-Image.
 
 ---
 
@@ -154,6 +160,9 @@ Wenn du den Zeugnisgenerator selbst betreibst oder weitergibst:
 - Konfiguriere den Google-Export (siehe [Google-Export](#google-export)) oder entferne ihn: Die Schaltfläche
   **Anmelden** und das Menü (⋮) mit den Exporten stehen in `src/app/user-input/user-input.component.html`.
 - Stelle eigene Datenschutzhinweise bereit (siehe [Datenschutz](#datenschutz)).
+- Betreibst du den MCP-Server, braucht er einen eigenen OAuth-Client und eine eigene Domain für die Anmeldung (siehe
+  [MCP-Server](#mcp-server)). Er enthält die Textbausteine aus `src/assets/`; mit eigenen Textbausteinen baust du ihn
+  neu.
 
 ---
 
@@ -199,6 +208,94 @@ der Export erst mit eigener Konfiguration:
 
 Die Namen der exportierten Dateien beginnen mit `atra_`. Das Präfix steht in
 `src/app/user-input/user-input.component.ts` (siehe [Eigene Instanz](#eigene-instanz)).
+
+---
+
+## MCP-Server
+
+Der MCP-Server macht den Zeugnisgenerator für KI-Agenten nutzbar, etwa als Connector in claude.ai oder in Claude Code.
+Er spricht das [Model Context Protocol](https://modelcontextprotocol.io/) über Streamable HTTP und bietet zwei Tools:
+
+| Tool                | Zweck                                                                                         |
+|---------------------|-----------------------------------------------------------------------------------------------|
+| `list_text_modules` | Textbausteine einer Zeugnisart mit nummerierten Sätzen, nach Thema, Unterthema und Notenstufe |
+| `compose_reference` | setzt aus den gewählten Sätzen und den Angaben zur Person den Zeugnistext zusammen            |
+
+Der Agent wählt pro Thema bzw. Unterthema einen Satz, bei Beurteilungen zuerst die Notenstufe. Den Text setzt der
+Server genau wie die App zusammen (`src/app/reference-text.ts`); fehlende Angaben meldet er zusätzlich.
+Tool-Beschreibungen und Ergebnisse tragen den Hinweis „keine Rechtsberatung“. Der Server ist zustandslos: Er speichert
+weder Eingaben noch Zeugnisse. Den Export nach Google Docs übernimmt bei Bedarf der Agent selbst, etwa mit einem
+Google-Drive-Connector.
+
+### Lokal starten
+
+Ohne Anmeldung, nur auf `127.0.0.1` erreichbar:
+
+```bash
+npm run build:mcp
+MCP_AUTH=none npm run start:mcp
+```
+
+In Claude Code bindest du ihn so ein:
+
+```bash
+claude mcp add --transport http zeugnisgenerator http://localhost:8080/mcp
+```
+
+### Konfiguration
+
+| Variable                | Bedeutung                                                                                |
+|-------------------------|------------------------------------------------------------------------------------------|
+| `PORT`                  | Port (Standard: 8080)                                                                    |
+| `MCP_AUTH`              | `google` (Standard) oder `none`; ohne Anmeldung lauscht der Server nur auf `127.0.0.1`   |
+| `PUBLIC_URL`            | öffentliche Adresse ohne Pfad, z. B. `https://zeugnisgenerator-mcp.example.com`          |
+| `GOOGLE_CLIENT_ID`      | Client-ID des OAuth-Clients für die Anmeldung                                            |
+| `GOOGLE_CLIENT_SECRET`  | Clientschlüssel dieses OAuth-Clients (geheim)                                            |
+| `GOOGLE_ALLOWED_DOMAIN` | Google-Workspace-Domain, deren Konten sich anmelden dürfen, z. B. `atra.consulting`      |
+| `TOKEN_SECRET`          | 32 Byte in Base64 zum Verschlüsseln der Tokens (geheim), z. B. `openssl rand -base64 32` |
+
+Mit `MCP_AUTH=google` sind alle Variablen außer `PORT` Pflicht. Der Server beantwortet nur Anfragen an den Host aus
+`PUBLIC_URL`.
+
+### Anmeldung mit Google
+
+MCP-Clients wie claude.ai erwarten einen OAuth-Server mit dynamischer Client-Registrierung, die Google nicht anbietet.
+Der MCP-Server ist deshalb selbst der OAuth-Server und überlässt nur die Anmeldung Google:
+
+1. Der Client registriert sich beim Server. Erlaubt sind nur die Rückleitungsadressen von claude.ai
+   (`https://claude.ai/api/mcp/auth_callback`, `https://claude.com/api/mcp/auth_callback`) und Adressen auf
+   `localhost` für lokale Clients wie Claude Code. Die Liste steht in `mcp/auth.ts`.
+2. Für die Anmeldung leitet der Server zu Google weiter. Er akzeptiert nur bestätigte Konten der Domain aus
+   `GOOGLE_ALLOWED_DOMAIN` und fordert nur die Bereiche `openid` und `email` an, keinen Zugriff auf Drive.
+3. Danach stellt der Server eigene Tokens aus: ein Zugriffstoken für eine Stunde und ein Aktualisierungstoken für
+   30 Tage. Bei jeder Aktualisierung fragt er bei Google nach, ob das Konto noch zugelassen ist. Ein gesperrtes Konto
+   verliert den Zugang damit spätestens nach einer Stunde.
+
+Alle Zustände (Clients, Codes, Tokens) stecken verschlüsselt in den Tokens selbst, der Server braucht keine Datenbank.
+Ein neues `TOKEN_SECRET` macht alle Registrierungen und Tokens ungültig; die Nutzer verbinden den Connector dann neu.
+Dass ein Autorisierungscode nur einmal einlösbar ist, prüft jede Server-Instanz für sich; dazu gelten Codes nur zwei
+Minuten und sind per PKCE an den Client gebunden.
+
+Den OAuth-Client legst du im Google-Cloud-Projekt unter
+[APIs & Dienste → Anmeldedaten](https://console.cloud.google.com/apis/credentials) an: Typ „Webanwendung“,
+autorisierte Weiterleitungs-URI `<PUBLIC_URL>/oauth/google/callback`. Steht der Zustimmungsbildschirm auf „Intern“,
+lässt Google ohnehin nur Konten der eigenen Organisation zu.
+
+In claude.ai fügst du den Server als benutzerdefinierten Connector mit der Adresse `<PUBLIC_URL>/mcp` hinzu; Client-ID
+und Clientschlüssel bleiben dort leer.
+
+### Betrieb mit Docker
+
+```bash
+docker build -f mcp/Dockerfile -t zeugnisgenerator-mcp .
+docker run --rm -p 8080:8080 \
+  -e PUBLIC_URL=https://zeugnisgenerator-mcp.example.com \
+  -e GOOGLE_CLIENT_ID=… -e GOOGLE_CLIENT_SECRET=… \
+  -e GOOGLE_ALLOWED_DOMAIN=example.com -e TOKEN_SECRET=… \
+  zeugnisgenerator-mcp
+```
+
+Das Image enthält nur den gebündelten Server samt Abhängigkeiten und Textbausteinen.
 
 ---
 
@@ -279,6 +376,9 @@ oder selbst betreibst, bringst du eigene Textbausteine im selben Format mit.
 ## Datenschutz
 
 - Die App hat kein Backend. Sie läuft vollständig im Browser, der Server liefert nur statische Dateien aus.
+- Der optionale MCP-Server verarbeitet die Angaben zur Person, die ein KI-Agent ihm übergibt, nur für die Dauer einer
+  Anfrage. Er speichert und protokolliert sie nicht. Die Angaben liegen aber auch beim Anbieter des Agenten. In seinen
+  Tokens steckt verschlüsselt die E-Mail-Adresse des angemeldeten Kontos.
 - Eingaben (auch Namen und Geburtsdaten), die gewählten Textbausteine und den erzeugten Text speichert die App im
   `localStorage` des Browsers. Sie bleiben dort, bis du in der Kopfleiste der Eingabeseite auf das Symbol
   **Zurücksetzen** (↻) klickst. Auch die Wahl des Designs liegt im `localStorage`.
@@ -304,6 +404,7 @@ oder selbst betreibst, bringst du eigene Textbausteine im selben Format mit.
 | **Build**            | Angular CLI mit `@angular/build`                                             |
 | **Auslieferung**     | `serve` im Docker-Image `node:22-alpine`                                     |
 | **Google-Anbindung** | Google Identity Services · REST-APIs von Docs, Sheets und Drive              |
+| **MCP-Server**       | MCP TypeScript SDK · Express · jose · esbuild · Test-Runner von Node.js      |
 | **CI/CD**            | GitHub Actions · semantic-release · commitlint                               |
 
 ---
@@ -317,6 +418,12 @@ Die wichtigsten Ordner und Dateien:
 ├── docs/
 │   ├── adrs/                        Architekturentscheidungen
 │   └── corporate-design.md          Schrift und Farben von atra.consulting
+├── mcp/                             MCP-Server für KI-Agenten
+│   ├── app.ts                       HTTP-Endpunkte und OAuth-Routen
+│   ├── auth.ts                      OAuth mit Anmeldung über Google
+│   ├── server.ts                    Tools und Hinweise für Agenten
+│   ├── text-modules.ts              Katalog der Textbausteine, Auswahl prüfen
+│   └── Dockerfile
 ├── src/
 │   ├── app/
 │   │   ├── certificate-chooser/     Startseite: Wahl der Zeugnisart
@@ -326,10 +433,11 @@ Die wichtigsten Ordner und Dateien:
 │   │   │   ├── intro/               persönliche Daten
 │   │   │   └── position/            Position und Aufgaben
 │   │   ├── reference-output/        Vorschau des Zeugnistexts
-│   │   ├── data-storage.service.ts  Zustand, localStorage, Platzhalter, Textaufbau
+│   │   ├── data-storage.service.ts  Zustand und localStorage
 │   │   ├── google-auth.service.ts   Google-Anmeldung
 │   │   ├── google-doc.service.ts    Export nach Google Docs und Sheets
 │   │   ├── google.config.ts         Client-ID und Vorlage für den Google-Export
+│   │   ├── reference-text.ts        Platzhalter und Textaufbau, auch für den MCP-Server
 │   │   └── theme.service.ts         helles und dunkles Design
 │   ├── assets/                      Textbausteine (data_*.json) und Logos
 │   ├── favicon.ico

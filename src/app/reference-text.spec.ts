@@ -10,7 +10,12 @@ import {
 // Minimal text modules with the structures of the real ones, independent of their wording.
 const textModules: TextModules = {
     textblocks: [
-        { name: 'intro', type: 'topic', title: '1. Einleitung', options: ['{firstname} {lastname} kam am {hiredate}.'] },
+        {
+            name: 'intro',
+            type: 'topic',
+            title: '1. Einleitung',
+            options: ['{firstname} {lastname} kam am {hiredate}.'],
+        },
         {
             name: 'performance',
             type: 'topic',
@@ -64,9 +69,7 @@ describe('reference-text', () => {
             },
             { firstname: 'Anna', lastname: 'Muster', hiredate: '01.02.2020' },
         );
-        expect(text).toBe(
-            'Anna Muster kam am 01.02.2020.\n\nSehr engagiert. Besonderer Erfolg.\n\nDanke, Anna.',
-        );
+        expect(text).toBe('Anna Muster kam am 01.02.2020.\n\nSehr engagiert. Besonderer Erfolg.\n\nDanke, Anna.');
     });
 
     it('should escape HTML and mark missing values in the HTML variant', () => {

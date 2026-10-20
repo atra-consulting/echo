@@ -109,7 +109,10 @@ function escapeHtml(text: string): string {
 
 // One paragraph per topic in the order of the text modules, with the
 // subtopics of a topic joined in their template order. Placeholders stay in.
-export function assembleRawTexts(textModules: TextModules | null | undefined, selectedBlocks: SelectedBlocks): string[] {
+export function assembleRawTexts(
+    textModules: TextModules | null | undefined,
+    selectedBlocks: SelectedBlocks,
+): string[] {
     const topics = textModules?.textblocks.map((t) => t.name) || Object.keys(selectedBlocks);
 
     return topics
@@ -140,13 +143,21 @@ function subtopicKey(option: string | Subtopic): string {
     return typeof option === 'string' ? 'undefined' : String(option.name);
 }
 
-export function assembleText(textModules: TextModules | null | undefined, selectedBlocks: SelectedBlocks, formData: FormData): string {
+export function assembleText(
+    textModules: TextModules | null | undefined,
+    selectedBlocks: SelectedBlocks,
+    formData: FormData,
+): string {
     return assembleRawTexts(textModules, selectedBlocks)
         .map((t) => replacePlaceholders(t, formData))
         .join('\n\n');
 }
 
-export function assembleHtml(textModules: TextModules | null | undefined, selectedBlocks: SelectedBlocks, formData: FormData): string {
+export function assembleHtml(
+    textModules: TextModules | null | undefined,
+    selectedBlocks: SelectedBlocks,
+    formData: FormData,
+): string {
     return assembleRawTexts(textModules, selectedBlocks)
         .map((t) => replacePlaceholdersHtml(t, formData))
         .join('<br><br>');
