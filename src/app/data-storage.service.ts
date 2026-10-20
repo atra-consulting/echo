@@ -1,42 +1,29 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+    CertificateType,
+    SelectedBlocks,
+    assembleHtml,
+    assembleText,
+    replacePlaceholders,
+    textModulesFileName,
+} from './reference-text';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DataStorageService {
-    public certificateType: 'abschlusszeugnis' | 'zwischenzeugnis' =
-        'abschlusszeugnis';
+    public certificateType: CertificateType = 'abschlusszeugnis';
     public dataUrl = 'assets/data_abschlusszeugnis.json';
     public inputData: any;
-    public selectedBlocks: {
-        [topic: string]: { [subtopic: string]: { text: string; rating: string } };
-    } = {};
+    public selectedBlocks: SelectedBlocks = {};
     public formData: any = {};
     public flowText: string = '';
     public flowTextHtml: string = '';
     public birthdate: Date | null = null;
     public hiredate: Date | null = null;
     public enddate: Date | null = null;
-
-    private readonly placeholderLabels: Record<string, string> = {
-        salutation: 'Anrede',
-        firstname: 'Vorname',
-        lastname: 'Nachname',
-        birthdate: 'Geburtsdatum',
-        birthplace: 'Geburtsort',
-        hiredate: 'Startdatum',
-        enddate: 'Enddatum',
-        job_title: 'Jobtitel',
-        business_area: 'Geschäftsbereich',
-        area_of_expertise: 'Kompetenzbereich',
-        task_list: 'Aufgaben',
-        projects: 'Projekte',
-        sales_region: 'Verkaufsgebiet',
-        promotion_date: 'Beförderungsdatum',
-        department: 'Abteilung',
-    };
 
     private http = inject(HttpClient);
 
@@ -46,13 +33,7 @@ export class DataStorageService {
     }
 
     public updateDataUrl(): void {
-        const isFemale = this.formData.salutation === 'Frau';
-        const type = this.certificateType;
-        if (isFemale) {
-            this.dataUrl = `assets/data_female_${type}.json`;
-        } else {
-            this.dataUrl = `assets/data_${type}.json`;
-        }
+        this.dataUrl = 'assets/' + textModulesFileName(this.certificateType, this.formData.salutation);
     }
 
     setFormData(key: string, value: any): void {
@@ -131,74 +112,13 @@ export class DataStorageService {
     }
 
     public replacePlaceholders(text: string): string {
-        if (typeof text !== 'string') {
-            return '';
-        }
-        return text.replace(
-            /{(\w+)}/g,
-            (_, key) => {
-                const label = this.placeholderLabels[key] || key;
-                return this.formData[key] || `[${label}]`;
-            }
-        );
-    }
-
-    private replacePlaceholdersHtml(text: string): string {
-        if (typeof text !== 'string') {
-            return '';
-        }
-        const escaped = this.escapeHtml(text);
-        return escaped.replace(
-            /\{(\w+)\}/g,
-            (_, key) => {
-                if (this.formData[key]) {
-                    return this.escapeHtml(this.formData[key]);
-                }
-                const label = this.placeholderLabels[key] || key;
-                return `<span class="placeholder placeholder--${key}">[${label}]</span>`;
-            }
-        );
-    }
-
-    private escapeHtml(text: string): string {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return replacePlaceholders(text, this.formData);
     }
 
     public updateFlowText(): void {
-        const rawTexts = this.assembleRawTexts();
-        this.flowText = rawTexts.map(t => this.replacePlaceholders(t)).join('\n\n');
-        this.flowTextHtml = rawTexts.map(t => this.replacePlaceholdersHtml(t)).join('<br><br>');
+        this.flowText = assembleText(this.inputData, this.selectedBlocks, this.formData);
+        this.flowTextHtml = assembleHtml(this.inputData, this.selectedBlocks, this.formData);
         this.saveFlowTextToLocalStorage();
-    }
-
-    private assembleRawTexts(): string[] {
-        const topics = this.inputData?.textblocks.map((t: any) => t.name) || Object.keys(this.selectedBlocks);
-
-        return topics
-            .map((topic: string) => {
-                if (!this.selectedBlocks[topic]) {
-                    return '';
-                }
-                const topicBlock = this.inputData.textblocks.find(
-                    (block: any) => block.name === topic
-                );
-                const subtopicsOrder =
-                    topicBlock?.options.map((option: any) => option.name) || [];
-
-                const subtopicTexts = subtopicsOrder
-                    .map((subtopic: string) => this.selectedBlocks[topic][subtopic]?.text)
-                    .filter((text: string) => text);
-
-                if (subtopicTexts.length === 0 && topicBlock?.options.length > 0) {
-                    return this.selectedBlocks[topic]['option']?.text || '';
-                }
-
-                return subtopicTexts.join(' ');
-            })
-            .filter((t: string) => t);
     }
 
     public saveFlowTextToLocalStorage(): void {
