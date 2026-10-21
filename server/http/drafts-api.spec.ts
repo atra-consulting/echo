@@ -6,7 +6,6 @@ import { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import { CryptoKey, SignJWT, generateKeyPair } from 'jose';
 import { AppOptions, createApp } from './app';
-import { Keyring } from '../adapters/aes-gcm-cipher';
 import { bundledTextModules } from '../adapters/bundled-text-modules';
 import { FixedIdentityProvider, IAP_HEADER, IapIdentityProvider } from '../adapters/iap-identity';
 import { MemoryDraftStore } from '../adapters/memory-draft-store';
@@ -33,7 +32,7 @@ describe('drafts API', () => {
     before(async () => {
         const keys = await generateKeyPair('ES256');
         privateKey = keys.privateKey;
-        const service = new DraftService(new MemoryDraftStore(), Keyring.ephemeral(), bundledTextModules, {
+        const service = new DraftService(new MemoryDraftStore(), bundledTextModules, {
             retentionDays: 90,
             clock: () => new Date(now),
         });
@@ -176,7 +175,7 @@ describe('drafts API', () => {
 
 describe('drafts API without IAP', () => {
     it('uses the development user when one is configured', async () => {
-        const service = new DraftService(new MemoryDraftStore(), Keyring.ephemeral(), bundledTextModules, {
+        const service = new DraftService(new MemoryDraftStore(), bundledTextModules, {
             retentionDays: 90,
         });
         const { server, baseUrl } = await listen({

@@ -1,12 +1,9 @@
 // Draft lifecycle per user: ownership, retention, final drafts are read-only,
 // export and import. Framework-free use cases; the REST API (http/) and the
-// MCP tools (mcp/) are thin layers over DraftService.
-//
-// DraftService -> EncryptedDraftRepository (plaintext in, DraftCipher) ->
-// DraftStore (encrypted records; memory or Firestore adapter). Every store goes
-// through the encryption: DraftService builds the repository itself.
+// MCP tools (mcp/) are thin layers over DraftService. How drafts are stored
+// (and protected, e.g. encrypted) is the business of the DraftStore adapter.
 import { randomBytes } from 'node:crypto';
-import { Clock, DraftCipher, DraftRecord, DraftStatus, DraftStore, TextModuleSource } from './ports';
+import { Clock, DraftStatus, DraftStore, StoredDraft, TextModuleSource } from './ports';
 
 export { DraftConflictError } from './ports';
 import {
@@ -18,73 +15,6 @@ import {
     referenceDraft,
 } from './schemas';
 import { Draft, StepBox, StepStatus, draft as composeDraft, stepBox, stepIds } from './steps';
-
-export interface StoredDraft {
-    id: string;
-    owner: string;
-    status: DraftStatus;
-    schemaVersion: number;
-    revision: number;
-    reference: ReferenceDraft;
-    createdAt: Date;
-    updatedAt: Date;
-    expireAt: Date;
-}
-
-interface DraftRepository {
-    get(id: string): Promise<StoredDraft | undefined>;
-    listByOwner(owner: string): Promise<StoredDraft[]>;
-    // expectedRevision: null to create, otherwise the revision that was read (optimistic lock).
-    save(draft: StoredDraft, expectedRevision: number | null): Promise<void>;
-    delete(id: string): Promise<void>;
-}
-
-// Binds the ciphertext to its document: copied to another id, owner or schema version it no longer decrypts.
-function aad(id: string, owner: string, schemaVersion: number): string {
-    return JSON.stringify([id, owner, schemaVersion]);
-}
-
-class EncryptedDraftRepository implements DraftRepository {
-    constructor(
-        private readonly store: DraftStore,
-        private readonly cipher: DraftCipher,
-    ) {}
-
-    public async get(id: string): Promise<StoredDraft | undefined> {
-        const record = await this.store.get(id);
-        return record && this.open(record);
-    }
-
-    // A record that does not decrypt (changed, or its key removed) is left out instead of breaking the list.
-    public async listByOwner(owner: string): Promise<StoredDraft[]> {
-        const drafts: StoredDraft[] = [];
-        for (const record of await this.store.listByOwner(owner)) {
-            try {
-                drafts.push(this.open(record));
-            } catch {
-                console.error(`Draft ${record.id} could not be decrypted (key ${record.keyId}).`);
-            }
-        }
-        return drafts;
-    }
-
-    public async save(draft: StoredDraft, expectedRevision: number | null): Promise<void> {
-        const { reference, ...meta } = draft;
-        const sealed = this.cipher.seal(JSON.stringify(reference), aad(draft.id, draft.owner, draft.schemaVersion));
-        await this.store.save({ ...meta, ...sealed }, expectedRevision);
-    }
-
-    public async delete(id: string): Promise<void> {
-        await this.store.delete(id);
-    }
-
-    private open(record: DraftRecord): StoredDraft {
-        const plaintext = this.cipher.open(record, aad(record.id, record.owner, record.schemaVersion));
-        const { id, owner, status, schemaVersion, revision, createdAt, updatedAt, expireAt } = record;
-        const reference = JSON.parse(plaintext) as ReferenceDraft;
-        return { id, owner, status, schemaVersion, revision, reference, createdAt, updatedAt, expireAt };
-    }
-}
 
 export class DraftNotFoundError extends Error {
     constructor() {
@@ -136,15 +66,12 @@ export interface DraftServiceOptions {
 
 export class DraftService {
     private readonly now: Clock;
-    private readonly repository: DraftRepository;
 
     constructor(
-        store: DraftStore,
-        cipher: DraftCipher,
+        private readonly repository: DraftStore,
         private readonly textModules: TextModuleSource,
         private readonly options: DraftServiceOptions,
     ) {
-        this.repository = new EncryptedDraftRepository(store, cipher);
         this.now = options.clock ?? (() => new Date());
     }
 

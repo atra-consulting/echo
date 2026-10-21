@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { Keyring } from '../adapters/aes-gcm-cipher';
 import { bundledTextModules } from '../adapters/bundled-text-modules';
 import { MemoryDraftStore } from '../adapters/memory-draft-store';
 import { DraftService, DraftView } from '../core/drafts';
@@ -25,7 +24,7 @@ async function connect(server: ReturnType<typeof createMcpServer>): Promise<Clie
 }
 
 describe('MCP server', () => {
-    const service = new DraftService(new MemoryDraftStore(), Keyring.ephemeral(), bundledTextModules, {
+    const service = new DraftService(new MemoryDraftStore(), bundledTextModules, {
         retentionDays: 90,
     });
     const textModules = bundledTextModules;

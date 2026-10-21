@@ -1,5 +1,6 @@
-// DraftCipher with AES-256-GCM: whoever may read the database (e.g. in the
-// console) sees only owner, status and timestamps, never names or ratings.
+// DraftCipher with AES-256-GCM, used by the Firestore draft store: whoever may
+// read the database (e.g. in the console) sees only owner, status and
+// timestamps, never names or ratings.
 // The key ring comes from the configuration (on Cloud Run a Secret Manager
 // secret injected as environment variable).
 //
@@ -8,11 +9,26 @@
 // Rotation: add a new key and make it active; remove the old one once no
 // document can still use it, i.e. after the retention period.
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import { DraftCipher, Sealed } from '../core/ports';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
+
+// Encrypted payload. A persistence concern of the adapters, not of the core.
+export interface Sealed {
+    keyId: string;
+    // base64
+    iv: string;
+    // base64, ciphertext followed by the authentication tag
+    ciphertext: string;
+}
+
+// Authenticated encryption; aad binds the ciphertext to its context (e.g. its document).
+export interface DraftCipher {
+    seal(plaintext: string, aad: string): Sealed;
+    // Throws if the key is unknown or ciphertext, IV or AAD were changed.
+    open(sealed: Sealed, aad: string): string;
+}
 
 export class KeyringError extends Error {}
 

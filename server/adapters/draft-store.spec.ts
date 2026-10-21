@@ -3,22 +3,26 @@
 // "gcloud emulators firestore start").
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { DraftConflictError, DraftRecord, DraftStore } from '../core/ports';
+import { DraftConflictError, DraftStore, StoredDraft } from '../core/ports';
+import { Keyring } from './aes-gcm-cipher';
 import { FirestoreDraftStore } from './firestore-draft-store';
 import { MemoryDraftStore } from './memory-draft-store';
 
 const DAY = 24 * 60 * 60 * 1000;
 
-function record(id: string, owner: string, updatedAt: number, revision = 1): DraftRecord {
+function record(id: string, owner: string, updatedAt: number, revision = 1): StoredDraft {
     return {
         id,
         owner,
         status: 'draft',
         schemaVersion: 1,
         revision,
-        keyId: 'k1',
-        iv: 'aXY=',
-        ciphertext: 'Y2lwaGVy',
+        reference: {
+            schema_version: 1,
+            certificate_type: 'zwischenzeugnis',
+            form_data: { salutation: 'Frau', firstname: 'Anna', lastname: 'Muster' },
+            selections: [{ step: 'intro', sentence: 0 }],
+        },
         createdAt: new Date(updatedAt),
         updatedAt: new Date(updatedAt),
         expireAt: new Date(updatedAt + 90 * DAY),
@@ -79,5 +83,18 @@ function contract(name: string, create: () => DraftStore): void {
 contract('memory', () => new MemoryDraftStore());
 
 if (process.env['FIRESTORE_EMULATOR_HOST']) {
-    contract('firestore (emulator)', () => new FirestoreDraftStore());
+    const firestore = new FirestoreDraftStore(Keyring.ephemeral());
+    contract('firestore (emulator)', () => firestore);
+
+    describe('firestore draft store (emulator)', () => {
+        it('writes no plaintext of the payload into the document', async () => {
+            const id = `plain-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            await firestore.save(record(id, 'o@example.com', 1_000), null);
+            const raw = JSON.stringify(await firestore.rawDocument(id));
+            assert.ok(raw.includes('o@example.com'));
+            for (const plain of ['Anna', 'Muster', 'Frau', 'zwischenzeugnis', 'intro']) {
+                assert.ok(!raw.includes(plain), plain);
+            }
+        });
+    });
 }

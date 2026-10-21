@@ -1,7 +1,6 @@
 // The draft use cases against in-memory adapters.
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { Keyring } from '../adapters/aes-gcm-cipher';
 import { bundledTextModules } from '../adapters/bundled-text-modules';
 import { MemoryDraftStore } from '../adapters/memory-draft-store';
 import { DraftConflictError, DraftFinalError, DraftNotFoundError, DraftService } from './drafts';
@@ -21,29 +20,19 @@ function intro(): ReferenceDraft {
 describe('drafts', () => {
     let now = Date.UTC(2026, 9, 1);
     const store = new MemoryDraftStore();
-    const service = new DraftService(store, Keyring.ephemeral(), bundledTextModules, {
+    const service = new DraftService(store, bundledTextModules, {
         retentionDays: 90,
         clock: () => new Date(now),
     });
 
-    it('stores the payload only encrypted, metadata in plaintext', async () => {
+    it('creates a draft with an unguessable id and composes its text', async () => {
         const view = await service.create('a@example.com', intro());
-        const raw = await store.get(view.id);
-        assert.ok(raw);
-        assert.equal(raw.owner, 'a@example.com');
-        assert.ok(!JSON.stringify(raw).includes('Muster'));
+        const stored = await store.get(view.id);
+        assert.equal(stored?.owner, 'a@example.com');
+        assert.equal(stored?.revision, 1);
         assert.equal(view.title, 'Anna Muster');
         assert.ok(view.result.text.includes('Muster'));
         assert.match(view.id, /^[A-Za-z0-9_-]{24}$/);
-    });
-
-    it('refuses ciphertext copied to another document', async () => {
-        const a = await service.create('a@example.com', intro());
-        const b = await service.create('a@example.com', intro());
-        const recordA = (await store.get(a.id))!;
-        const recordB = (await store.get(b.id))!;
-        await store.save({ ...recordB, iv: recordA.iv, ciphertext: recordA.ciphertext }, recordB.revision);
-        await assert.rejects(service.get('a@example.com', b.id));
     });
 
     it('validates selections before storing anything', async () => {

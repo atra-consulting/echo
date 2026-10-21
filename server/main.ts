@@ -122,27 +122,24 @@ async function wire(): Promise<{
     if (draftStore === 'off') {
         return { textModules, identity };
     }
-    const cipher = keyring();
     let store: DraftStore;
     if (draftStore === 'firestore') {
+        // Fail closed: without a valid key ring the backend does not start.
+        const cipher = keyring();
         // Loaded only when used; the image ships the package next to the bundle.
         const { FirestoreDraftStore } = await import('./adapters/firestore-draft-store');
-        store = new FirestoreDraftStore();
+        store = new FirestoreDraftStore(cipher);
     } else {
         console.warn('DRAFT_STORE=memory: drafts live only as long as this process.');
         store = new MemoryDraftStore();
     }
-    return { textModules, identity, drafts: new DraftService(store, cipher, textModules, { retentionDays }) };
+    return { textModules, identity, drafts: new DraftService(store, textModules, { retentionDays }) };
 }
 
-// Fail closed: Firestore only with a valid key ring. The memory store may use a key of its own.
+// The key ring of the Firestore store (encryption of the payload).
 function keyring(): Keyring {
-    const json = env['DRAFT_ENCRYPTION_KEY'];
-    if (!json && draftStore === 'memory') {
-        return Keyring.ephemeral();
-    }
     try {
-        return Keyring.parse(json);
+        return Keyring.parse(env['DRAFT_ENCRYPTION_KEY']);
     } catch (e) {
         fail(`DRAFT_ENCRYPTION_KEY: ${e instanceof KeyringError ? e.message : 'invalid'}`);
     }

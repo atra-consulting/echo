@@ -260,8 +260,7 @@ Umgebungsvariablen und verbindet die Adapter.
 | Port               | Adapter                                                          | Auswahl                               |
 |--------------------|------------------------------------------------------------------|---------------------------------------|
 | `TextModuleSource` | mitgebündelte Textbausteine aus `src/assets/` oder ein Verzeichnis | `TEXT_MODULES_DIR`                    |
-| `DraftStore`       | Arbeitsspeicher oder Firestore                                   | `DRAFT_STORE`                         |
-| `DraftCipher`      | AES-256-GCM mit Schlüsselbund                                    | `DRAFT_ENCRYPTION_KEY`                |
+| `DraftStore`       | Arbeitsspeicher, oder Firestore mit AES-256-GCM-Verschlüsselung    | `DRAFT_STORE`, `DRAFT_ENCRYPTION_KEY` |
 | `IdentityProvider` | signierte IAP-Kopfzeile oder fester Entwicklungsnutzer           | `IAP_AUDIENCE` bzw. `DEV_USER_EMAIL`  |
 
 Für einen Fork genügt meist die Konfiguration: eigene Textbausteine per `TEXT_MODULES_DIR`, Entwürfe im Arbeitsspeicher
@@ -350,9 +349,11 @@ das Backend wie nicht vorhandene. Jedes Dokument zählt seine Schreibvorgänge (
 Schreiben ein anderer Schreibvorgang dazwischen (etwa „final“ während einer Änderung), lehnt die Ablage den zweiten ab
 (409), statt ihn stillschweigend zu überschreiben.
 
-Den Inhalt (Angaben zur Person, Auswahl) verschlüsselt das Backend vor dem Speichern mit AES-256-GCM, mit einem neuen
-Zufalls-IV je Schreibvorgang. Die Prüfsumme bindet den Inhalt an Id, Besitzer und Formatversion des Dokuments. Im
-Klartext stehen nur Besitzer, Status, Formatversion, Schlüssel-Id und Zeitstempel. Der Schlüsselbund kommt aus dem
+Den Inhalt (Angaben zur Person, Auswahl) verschlüsselt die Firestore-Ablage (`server/adapters/firestore-draft-store.ts`)
+vor dem Speichern mit AES-256-GCM, mit einem neuen Zufalls-IV je Schreibvorgang; der Kern kennt keine
+Verschlüsselung, und die Ablage im Arbeitsspeicher verlässt den Prozess nicht. Die Prüfsumme bindet den Inhalt an Id,
+Besitzer und Formatversion des Dokuments. Im Klartext stehen nur Besitzer, Status, Formatversion, Revision,
+Schlüssel-Id und Zeitstempel. Der Schlüsselbund kommt aus dem
 Secret `draft-encryption-key` im Secret Manager:
 
 ```json
