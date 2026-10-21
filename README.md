@@ -167,7 +167,7 @@ Der Workflow `.github/workflows/deploy.yml` stellt die Instanz von atra.consulti
 Google Cloud Run bereit: Er führt zuerst die Tests aus `ci.yml` aus, baut beide Images (`echo` und `echo-api`), legt
 den Firestore-Index für die Liste der Entwürfe an und ersetzt den Dienst mit `gcloud run services replace` durch das
 Manifest `deploy/cloud-run/service.yaml`. Das Manifest übernimmt die Einstellungen der GCP-Plattform (IAP direkt am
-Dienst, Ingress) und das laufende Dienstkonto und bindet das Secret `draft-encryption-key` ein. In Forks läuft der
+Dienst, Ingress) und deren Runtime-Dienstkonto und bindet das Secret `draft-encryption-key` ein. In Forks läuft der
 Workflow nicht.
 
 ### Eigene Instanz

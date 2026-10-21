@@ -66,20 +66,17 @@ jobs:
           build_and_push echo Dockerfile
           build_and_push echo-api server/Dockerfile
 
-      # Das Manifest ersetzt den ganzen Dienst. Das Runtime-Dienstkonto liest
-      # der Schritt vom laufenden Dienst, damit der Deploy es nicht wechselt
-      # (die Umstellung gehört zur offenen Bestandsmigration). Die
-      # Projektnummer für die Zielgruppe (audience) der IAP-Prüfung steht im
-      # Namespace des Dienstes.
+      # Das Manifest ersetzt den ganzen Dienst. Der Dienst läuft unter dem
+      # Runtime-Dienstkonto der Plattform (Secret RUNTIME_SA), das Zugriff auf
+      # Firestore und das App-Secret hat. Die Projektnummer für die Zielgruppe
+      # (audience) der IAP-Prüfung steht im Namespace des Dienstes.
       - name: Manifest füllen
         env:
           IMAGE_REGISTRY: ${{ secrets.AR_REGISTRY }}
+          SERVICE_ACCOUNT: ${{ secrets.RUNTIME_SA }}
         run: |
-          describe() {
-            gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format="value($1)"
-          }
-          SERVICE_ACCOUNT="$(describe spec.template.spec.serviceAccountName)"
-          PROJECT_NUMBER="$(describe metadata.namespace)"
+          PROJECT_NUMBER="$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" \
+            --format='value(metadata.namespace)')"
           if [ -z "$SERVICE_ACCOUNT" ] || ! printf '%s' "$PROJECT_NUMBER" | grep -Eq '^[0-9]+$'; then
             echo "::error::Dienstkonto oder Projektnummer des Dienstes $SERVICE_NAME nicht lesbar"
             exit 1

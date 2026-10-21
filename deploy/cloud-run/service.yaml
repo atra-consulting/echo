@@ -7,8 +7,7 @@
 # file with `gcloud run services replace`:
 #   IMAGE_REGISTRY   Artifact Registry of the project (secret AR_REGISTRY)
 #   IMAGE_TAG        the commit that was built
-#   SERVICE_ACCOUNT  runtime service account the service runs under today
-#                    (read from the live service, so the deploy does not switch it)
+#   SERVICE_ACCOUNT  runtime service account of the platform (repository secret RUNTIME_SA)
 #   IAP_AUDIENCE     /projects/<number>/locations/europe-west1/services/echo
 #   REVISION         a name per deploy run, see below
 #
