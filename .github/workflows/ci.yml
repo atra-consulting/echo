@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+  # Test gate of deploy.yml
+  workflow_call:
 
 permissions:
   contents: read
@@ -40,8 +42,37 @@ jobs:
       - name: 'Test'
         run: npx ng test --watch=false --browsers=ChromeHeadless
 
-      - name: 'Build MCP server'
-        run: npm run build:mcp
+      - name: 'Build backend'
+        run: npm run build:server
 
-      - name: 'Test MCP server'
-        run: npm run test:mcp
+      - name: 'Test backend'
+        run: npm run test:server
+
+  # Both images build (as in deploy.yml, nothing is pushed) and work together.
+  docker:
+    name: 'Docker images'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Build and start (compose.yaml)'
+        run: docker compose up --build --detach --wait
+
+      - name: 'Smoke test'
+        run: |
+          curl --fail --silent http://localhost:8080/ | grep -q '<app-root'
+          curl --fail --silent http://localhost:8080/api/health
+          curl --fail --silent http://localhost:8080/api/certificate-types/abschlusszeugnis/steps > /dev/null
+          # Drafts in the Firestore emulator, owned by the development user of compose.yaml.
+          curl --fail --silent -X POST http://localhost:8080/api/drafts -H 'Content-Type: application/json' \
+            -d '{"certificate_type": "abschlusszeugnis"}' > /dev/null
+          curl --fail --silent http://localhost:8080/api/drafts | grep -q '"status":"draft"'
+          # The text modules are served by the API only, not as static files.
+          curl --silent --output /dev/null --write-out '%{http_code}' \
+            http://localhost:8080/assets/data_abschlusszeugnis.json | grep -qx 404
+
+      - name: 'Stop'
+        if: always()
+        run: docker compose down

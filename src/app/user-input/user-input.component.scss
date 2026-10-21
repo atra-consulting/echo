@@ -72,6 +72,12 @@
 
 .top-bar-right {
     display: flex;
+
+    .draft-final {
+        margin: 0 8px;
+        color: var(--text-secondary);
+    }
+
     align-items: center;
     gap: 8px;
 

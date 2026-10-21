@@ -1,31 +1,22 @@
 // Agent-facing view of the text modules: a catalog with numbered sentences and
 // the composition of a reference from selections by number. The assembly
-// itself is the one of the app (src/app/reference-text.ts).
-import abschlusszeugnis from '../src/assets/data_abschlusszeugnis.json';
-import femaleAbschlusszeugnis from '../src/assets/data_female_abschlusszeugnis.json';
-import femaleZwischenzeugnis from '../src/assets/data_female_zwischenzeugnis.json';
-import zwischenzeugnis from '../src/assets/data_zwischenzeugnis.json';
+// itself is the one of the app (src/app/reference-text.ts). Where the modules
+// come from is the business of a TextModuleSource (ports.ts).
 import {
-    CertificateType,
     FormData,
     PLACEHOLDER_LABELS,
     RatingLevel,
     SelectedBlocks,
+    Selection,
     Subtopic,
     TextModules,
     assembleRawTexts,
     assembleText,
     findPlaceholders,
     placeholderLabel,
-    textModulesFileName,
-} from '../src/app/reference-text';
+} from '../../src/app/reference-text';
 
-const TEXT_MODULES: Record<string, TextModules> = {
-    'data_abschlusszeugnis.json': abschlusszeugnis as TextModules,
-    'data_female_abschlusszeugnis.json': femaleAbschlusszeugnis as TextModules,
-    'data_zwischenzeugnis.json': zwischenzeugnis as TextModules,
-    'data_female_zwischenzeugnis.json': femaleZwischenzeugnis as TextModules,
-};
+export type { Selection };
 
 export const DISCLAIMER =
     'Unverbindlicher Formulierungsvorschlag, keine Rechtsberatung. Bitte vor der Verwendung prüfen.';
@@ -59,13 +50,6 @@ export interface CatalogTopic {
     ratings?: CatalogRating[];
 }
 
-export interface Selection {
-    topic: string;
-    subtopic?: string;
-    rating?: string;
-    sentence: number;
-}
-
 export interface Composition {
     text: string;
     missingPlaceholders: { name: string; label: string }[];
@@ -75,10 +59,6 @@ export class SelectionError extends Error {
     constructor(public readonly problems: string[]) {
         super(problems.join('\n'));
     }
-}
-
-export function loadTextModules(certificateType: CertificateType, salutation?: string): TextModules {
-    return TEXT_MODULES[textModulesFileName(certificateType, salutation)];
 }
 
 export function placeholderCatalog(): { name: string; label: string }[] {
@@ -142,9 +122,9 @@ export function toSelectedBlocks(textModules: TextModules, selections: Selection
 
     for (const selection of selections) {
         const label = describe(selection);
-        const topic = topics.find((t) => t.topic === selection.topic);
+        const topic = topics.find((t) => t.topic === selection.step);
         if (!topic) {
-            problems.push(`${label}: Unbekanntes Thema. Erlaubt: ${topics.map((t) => t.topic).join(', ')}.`);
+            problems.push(`${label}: Unbekannter Schritt. Erlaubt: ${topics.map((t) => t.topic).join(', ')}.`);
             continue;
         }
 
@@ -155,7 +135,7 @@ export function toSelectedBlocks(textModules: TextModules, selections: Selection
             const subtopic = topic.subtopics.find((s) => s.subtopic === selection.subtopic);
             if (!subtopic) {
                 const allowed = topic.subtopics.map((s) => s.subtopic).join(', ');
-                problems.push(`${label}: Das Thema verlangt ein Unterthema. Erlaubt: ${allowed}.`);
+                problems.push(`${label}: Der Schritt verlangt ein Unterthema. Erlaubt: ${allowed}.`);
                 continue;
             }
             key = subtopic.subtopic;
@@ -163,7 +143,7 @@ export function toSelectedBlocks(textModules: TextModules, selections: Selection
             ratingLevels = subtopic.ratings;
         } else {
             if (selection.subtopic !== undefined) {
-                problems.push(`${label}: Das Thema hat keine Unterthemen.`);
+                problems.push(`${label}: Der Schritt hat keine Unterthemen.`);
                 continue;
             }
             // Keys of the app: 'option' for sentences listed in the topic, 'undefined' for the unnamed subtopic.
@@ -194,7 +174,7 @@ export function toSelectedBlocks(textModules: TextModules, selections: Selection
             continue;
         }
         if (selectedBlocks[topic.topic]?.[key]) {
-            problems.push(`${label}: Pro Thema bzw. Unterthema ist nur ein Satz möglich.`);
+            problems.push(`${label}: Pro Schritt bzw. Unterthema ist nur ein Satz möglich.`);
             continue;
         }
         selectedBlocks[topic.topic] = { ...selectedBlocks[topic.topic], [key]: { text: sentence.text, rating } };
@@ -207,7 +187,7 @@ export function toSelectedBlocks(textModules: TextModules, selections: Selection
 }
 
 function describe(selection: Selection): string {
-    return [selection.topic, selection.subtopic, selection.rating, `Satz ${selection.sentence}`]
+    return [selection.step, selection.subtopic, selection.rating, `Satz ${selection.sentence}`]
         .filter((part) => part !== undefined)
         .join(' / ');
 }

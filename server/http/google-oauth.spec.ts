@@ -8,10 +8,11 @@ import { after, before, beforeEach, describe, it } from 'node:test';
 import { CryptoKey, JWTPayload, SignJWT, generateKeyPair } from 'jose';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { bundledTextModules } from '../adapters/bundled-text-modules';
 import { createApp } from './app';
 
 const GOOGLE_CLIENT_ID = 'test-client.apps.googleusercontent.com';
-const DOMAIN = 'atra.consulting';
+const DOMAIN = 'example.org';
 const REDIRECT_URI = 'http://localhost:9999/callback';
 
 interface GoogleFake {
@@ -54,6 +55,8 @@ describe('OAuth with Google', () => {
         const app = createApp({
             host: '127.0.0.1',
             publicUrl: new URL(baseUrl),
+            textModules: bundledTextModules,
+            mcpAuth: 'google',
             google: {
                 googleClientId: GOOGLE_CLIENT_ID,
                 googleClientSecret: 'secret',
@@ -168,7 +171,7 @@ describe('OAuth with Google', () => {
             }),
         );
         const { tools } = await client.listTools();
-        assert.equal(tools.length, 2);
+        assert.equal(tools.length, 8);
         await client.close();
 
         const replay = await token({ grant_type: 'authorization_code', client_id: id, code, code_verifier: verifier });

@@ -1,4 +1,4 @@
-/* Type checking of the MCP server; esbuild bundles it (mcp/build.mjs). */
+/* Type checking of the backend; esbuild bundles it (server/build.mjs). */
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {

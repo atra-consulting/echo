@@ -23,16 +23,20 @@
 !/.releaserc.yml
 !/angular.json
 !/commitlint.config.js
+!/compose.yaml
+!/deploy/**
 !/Dockerfile
 !/package.json
 !/package-lock.json
+!/proxy.conf.json
 !/tsconfig.app.json
 !/tsconfig.json
 !/tsconfig.spec.json
 
 # Source
 !/**/src/**
-!/mcp/**
+!/server/**
+!/scripts/**
 
 # Blacklist
 node_modules

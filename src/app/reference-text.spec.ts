@@ -2,8 +2,10 @@ import {
     TextModules,
     assembleHtml,
     assembleText,
+    blocksToSelections,
     findPlaceholders,
     replacePlaceholders,
+    selectionsToBlocks,
     textModulesFileName,
 } from './reference-text';
 
@@ -81,5 +83,34 @@ describe('reference-text', () => {
         expect(html).toBe(
             '&lt;b&gt;A&amp;B&lt;/b&gt; <span class="placeholder placeholder--lastname">[Nachname]</span>',
         );
+    });
+
+    it('should translate the selections of the app into selections by number and back', () => {
+        const blocks = {
+            intro: { option: { text: '{firstname} {lastname} kam am {hiredate}.', rating: '' } },
+            performance: {
+                work_attitude: { text: 'Sehr engagiert.', rating: 'sehr gut' },
+                special_successes: { text: 'Besonderer Erfolg.', rating: '' },
+            },
+            farewell: { undefined: { text: 'Danke, {firstname}.', rating: 'sehr gut' } },
+        };
+        const { selections, unmatched } = blocksToSelections(textModules, blocks);
+        expect(unmatched).toBe(0);
+        expect(selections).toEqual([
+            { step: 'intro', sentence: 0 },
+            { step: 'performance', subtopic: 'work_attitude', rating: 'sehr gut', sentence: 0 },
+            { step: 'performance', subtopic: 'special_successes', sentence: 0 },
+            { step: 'farewell', rating: 'sehr gut', sentence: 0 },
+        ]);
+        expect(selectionsToBlocks(textModules, selections)).toEqual(blocks);
+    });
+
+    it('should count texts that are not in the text modules as unmatched', () => {
+        const { selections, unmatched } = blocksToSelections(textModules, {
+            intro: { option: { text: 'Ein anderer Satz.', rating: '' } },
+        });
+        expect(selections).toEqual([]);
+        expect(unmatched).toBe(1);
+        expect(selectionsToBlocks(textModules, [{ step: 'intro', sentence: 5 }])).toEqual({});
     });
 });

@@ -1,5 +1,5 @@
 // Framework-free assembly of the reference text from the text modules. Used by
-// DataStorageService in the app and by the MCP server (mcp/), so it must not
+// DataStorageService in the app and by the backend (server/), so it must not
 // import Angular or browser APIs.
 
 export type CertificateType = 'abschlusszeugnis' | 'zwischenzeugnis';
@@ -161,4 +161,99 @@ export function assembleHtml(
     return assembleRawTexts(textModules, selectedBlocks)
         .map((t) => replacePlaceholdersHtml(t, formData))
         .join('<br><br>');
+}
+
+// A selected sentence by number, as the backend's REST API and MCP tools use
+// it. step is the name of the topic; the numbers count the sentences of a
+// topic, subtopic or rating level from 0.
+export interface Selection {
+    step: string;
+    subtopic?: string;
+    rating?: string;
+    sentence: number;
+}
+
+// Translates the selections of the app (text per topic and subtopic) into
+// selections by number. Texts that the text modules do not contain (e.g. from
+// the other variant) are counted as unmatched.
+export function blocksToSelections(
+    textModules: TextModules,
+    selectedBlocks: SelectedBlocks,
+): { selections: Selection[]; unmatched: number } {
+    const selections: Selection[] = [];
+    let unmatched = 0;
+    const add = (selection: Omit<Selection, 'sentence'>, sentences: unknown[], text: string): void => {
+        const sentence = sentences.filter((s): s is string => typeof s === 'string').indexOf(text);
+        if (sentence < 0) {
+            unmatched++;
+        } else {
+            selections.push({ ...selection, sentence });
+        }
+    };
+    for (const topic of textModules.textblocks) {
+        const blocks = selectedBlocks[topic.name] ?? {};
+        const subtopics = topic.options.filter((o): o is Subtopic => typeof o !== 'string');
+        if (subtopics.length === 0) {
+            if (blocks['option']?.text) {
+                add({ step: topic.name }, topic.options, blocks['option'].text);
+            }
+            continue;
+        }
+        for (const subtopic of subtopics) {
+            const block = blocks[String(subtopic.name)];
+            if (!block?.text) {
+                continue;
+            }
+            const base: Omit<Selection, 'sentence'> = { step: topic.name };
+            if (subtopic.name !== undefined) {
+                base.subtopic = subtopic.name;
+            }
+            if (isRatedSubtopic(subtopic)) {
+                const level = (subtopic.options as RatingLevel[]).find((l) => l.title === block.rating);
+                if (level) {
+                    add({ ...base, rating: level.title }, level.options, block.text);
+                } else {
+                    unmatched++;
+                }
+            } else {
+                add(base, subtopic.options, block.text);
+            }
+        }
+    }
+    return { selections, unmatched };
+}
+
+// The reverse of blocksToSelections; selections that do not fit the text modules are left out.
+export function selectionsToBlocks(textModules: TextModules, selections: Selection[]): SelectedBlocks {
+    const blocks: SelectedBlocks = {};
+    for (const selection of selections) {
+        const topic = textModules.textblocks.find((t) => t.name === selection.step);
+        if (!topic) {
+            continue;
+        }
+        const subtopics = topic.options.filter((o): o is Subtopic => typeof o !== 'string');
+        let key = 'option';
+        let sentences: unknown[] = topic.options;
+        if (subtopics.length > 0) {
+            const subtopic = subtopics.find((s) => s.name === selection.subtopic);
+            if (!subtopic) {
+                continue;
+            }
+            key = String(subtopic.name);
+            sentences = subtopic.options;
+            if (isRatedSubtopic(subtopic)) {
+                const level = (subtopic.options as RatingLevel[]).find((l) => l.title === selection.rating);
+                sentences = level?.options ?? [];
+            }
+        }
+        const text = sentences.filter((s): s is string => typeof s === 'string')[selection.sentence];
+        if (text !== undefined) {
+            blocks[topic.name] = { ...blocks[topic.name], [key]: { text, rating: selection.rating ?? '' } };
+        }
+    }
+    return blocks;
+}
+
+function isRatedSubtopic(subtopic: Subtopic): boolean {
+    return typeof subtopic.options[0] === 'object' && !!subtopic.options[0]?.title;
 }

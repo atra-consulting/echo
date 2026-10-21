@@ -1,0 +1,55 @@
+# Ingress of the Zeugnisgenerator: serves the Angular build and forwards the
+# backend paths to the backend container. Both run in one network namespace
+# (Cloud Run instance, or network_mode in compose.yaml), so the backend is
+# reachable on loopback. The nginx image fills in ${PORT} and ${API_PORT} at
+# start (envsubst on /etc/nginx/templates); every other $ is an nginx variable.
+
+# Cloud Run terminates TLS and sets X-Forwarded-Proto; locally there is none.
+map $http_x_forwarded_proto $forwarded_proto {
+    default $http_x_forwarded_proto;
+    ''      $scheme;
+}
+
+server {
+    listen ${PORT};
+    server_name _;
+    server_tokens off;
+
+    root /usr/share/nginx/zeugnisgenerator;
+
+    # Requests of the API and of MCP are small JSON documents.
+    client_max_body_size 1m;
+
+    # REST API, used by the web app and by agents.
+    location /api/ {
+        proxy_pass http://127.0.0.1:${API_PORT};
+        include /etc/nginx/backend-proxy.conf;
+    }
+
+    # MCP server (Streamable HTTP). The backend answers 404 while MCP_AUTH=off.
+    location = /mcp {
+        proxy_pass http://127.0.0.1:${API_PORT};
+        include /etc/nginx/backend-proxy.conf;
+    }
+
+    # OAuth endpoints of the MCP server, only answered with MCP_AUTH=google.
+    location ~ ^/(\.well-known/oauth-[a-z-]+|authorize|token|register|revoke|oauth/google/callback)(/|$) {
+        proxy_pass http://127.0.0.1:${API_PORT};
+        include /etc/nginx/backend-proxy.conf;
+    }
+
+    # The file names of scripts and styles carry a hash; index.html must not be cached.
+    location = /index.html {
+        expires -1;
+    }
+
+    # Static files only; a missing one is a 404, not the app.
+    location /assets/ {
+        try_files $uri =404;
+    }
+
+    # Single-page app: unknown paths are routes of the Angular router.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
