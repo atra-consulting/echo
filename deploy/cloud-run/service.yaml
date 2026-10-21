@@ -20,6 +20,9 @@ kind: Service
 metadata:
   # The infrastructure keeps the old name echo, independent of the app name.
   name: echo
+  labels:
+    managed-by: github-actions
+    commit-sha: ${IMAGE_TAG}
   annotations:
     run.googleapis.com/ingress: all
     run.googleapis.com/iap-enabled: "true"
@@ -29,9 +32,14 @@ spec:
       # Every deploy makes a revision, also a re-run of the same commit: a
       # rotated secret (key: latest) only arrives with a new revision.
       name: ${REVISION}
+      labels:
+        managed-by: github-actions
+        commit-sha: ${IMAGE_TAG}
       annotations:
         # Scale to zero stays (no minScale); the start gets more CPU instead.
         run.googleapis.com/startup-cpu-boost: "true"
+        # Upper bound on instances as a cost guard, as before the split.
+        autoscaling.knative.dev/maxScale: "20"
         # nginx starts only once the backend passed its startup probe.
         run.googleapis.com/container-dependencies: '{"web": ["api"]}'
     spec:
