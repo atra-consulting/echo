@@ -1,0 +1,56 @@
+# The Zeugnisgenerator as on Cloud Run: the ingress (nginx with the web app)
+# and the backend share one network namespace, so nginx reaches the backend on
+# 127.0.0.1:8081, as the containers of one Cloud Run instance do. Keep in step
+# with deploy/cloud-run/service.yaml.
+#
+#   docker compose up --build    then http://localhost:8080
+#
+# Locally there is no IAP: the drafts belong to the development user below,
+# and they live in the Firestore emulator (gone when it stops; the emulator
+# ignores composite indexes). MCP is off by default;
+# MCP_AUTH=none docker compose up --build serves /mcp for the development
+# user, as production does behind IAP (only on this machine, see ports).
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      # Only on this machine: there is no IAP in front locally.
+      - "127.0.0.1:8080:8080"
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    network_mode: "service:web"
+    depends_on:
+      firestore:
+        condition: service_healthy
+    environment:
+      MCP_AUTH: ${MCP_AUTH:-off}
+      # All interfaces, as on Cloud Run; outside the namespace only nginx's port is published.
+      HOST: 0.0.0.0
+      DRAFT_STORE: firestore
+      FIRESTORE_EMULATOR_HOST: firestore:8686
+      GOOGLE_CLOUD_PROJECT: demo-zeugnisgenerator
+      DEV_USER_EMAIL: entwicklung@example.com
+      # DEVELOPMENT ONLY, not a secret: a fixed key so drafts survive restarts
+      # of the backend. Production reads the key ring from Secret Manager.
+      DRAFT_ENCRYPTION_KEY: '{"active":"dev","keys":{"dev":"TlVSLUxPS0FMLWtlaW4tZWNodGVyLVNjaGx1ZXNzZWw="}}'
+    # With the container IP as Host, as a Cloud Run probe would send it: the
+    # health check must answer regardless of the Host validation.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://$$(hostname -i | cut -d' ' -f1):8081/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  firestore:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: gcloud emulators firestore start --host-port=0.0.0.0:8686
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8686/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

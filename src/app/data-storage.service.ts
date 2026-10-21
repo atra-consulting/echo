@@ -1,18 +1,34 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, catchError } from 'rxjs';
+import { DraftStatus, DraftView, ReferenceDraft } from './drafts.service';
+import {
+    CertificateType,
+    PLACEHOLDER_LABELS,
+    SelectedBlocks,
+    TextModules,
+    assembleHtml,
+    assembleText,
+    blocksToSelections,
+    replacePlaceholders,
+    selectionsToBlocks,
+} from './reference-text';
+
+// Base path of the backend's REST API, relative to the base href. ng dev
+// forwards it to the backend (proxy.conf.json), in the container nginx does.
+const API_BASE = 'api';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DataStorageService {
-    public certificateType: 'abschlusszeugnis' | 'zwischenzeugnis' =
-        'abschlusszeugnis';
-    public dataUrl = 'assets/data_abschlusszeugnis.json';
+    public certificateType: CertificateType = 'abschlusszeugnis';
     public inputData: any;
-    public selectedBlocks: {
-        [topic: string]: { [subtopic: string]: { text: string; rating: string } };
-    } = {};
+    public textModulesError = false;
+    // The stored draft the current inputs belong to; null until the first save.
+    public draftId: string | null = null;
+    public draftStatus: DraftStatus | null = null;
+    public selectedBlocks: SelectedBlocks = {};
     public formData: any = {};
     public flowText: string = '';
     public flowTextHtml: string = '';
@@ -20,39 +36,23 @@ export class DataStorageService {
     public hiredate: Date | null = null;
     public enddate: Date | null = null;
 
-    private readonly placeholderLabels: Record<string, string> = {
-        salutation: 'Anrede',
-        firstname: 'Vorname',
-        lastname: 'Nachname',
-        birthdate: 'Geburtsdatum',
-        birthplace: 'Geburtsort',
-        hiredate: 'Startdatum',
-        enddate: 'Enddatum',
-        job_title: 'Jobtitel',
-        business_area: 'Geschäftsbereich',
-        area_of_expertise: 'Kompetenzbereich',
-        task_list: 'Aufgaben',
-        projects: 'Projekte',
-        sales_region: 'Verkaufsgebiet',
-        promotion_date: 'Beförderungsdatum',
-        department: 'Abteilung',
-    };
-
     private http = inject(HttpClient);
 
-    getData(url: string): Observable<any> {
-        this.updateDataUrl();
-        return this.http.get<any>(url ? url : this.dataUrl);
-    }
-
-    public updateDataUrl(): void {
-        const isFemale = this.formData.salutation === 'Frau';
-        const type = this.certificateType;
-        if (isFemale) {
-            this.dataUrl = `assets/data_female_${type}.json`;
-        } else {
-            this.dataUrl = `assets/data_${type}.json`;
-        }
+    // Loads the text modules of the current certificate type from the backend,
+    // in the female variant for the salutation "Frau". On failure the observable
+    // completes without a value and textModulesError is set.
+    loadTextModules(): Observable<TextModules> {
+        this.textModulesError = false;
+        const salutation = this.formData.salutation;
+        const params: Record<string, string> = salutation === 'Herr' || salutation === 'Frau' ? { salutation } : {};
+        const url = `${API_BASE}/certificate-types/${this.certificateType}/text-modules`;
+        return this.http.get<TextModules>(url, { params }).pipe(
+            catchError((error) => {
+                console.error('Loading the text modules failed:', error?.status);
+                this.textModulesError = true;
+                return EMPTY;
+            }),
+        );
     }
 
     setFormData(key: string, value: any): void {
@@ -109,10 +109,84 @@ export class DataStorageService {
         }
     }
 
+    // Certificate type and the draft the inputs belong to survive a reload like the inputs themselves.
+    saveDraftRefToLocalStorage(): void {
+        const ref = { certificate_type: this.certificateType, id: this.draftId, status: this.draftStatus };
+        localStorage.setItem('draft', JSON.stringify(ref));
+    }
+
+    loadDraftRefFromLocalStorage(): void {
+        try {
+            const saved = JSON.parse(localStorage.getItem('draft') || 'null');
+            if (saved?.certificate_type === 'abschlusszeugnis' || saved?.certificate_type === 'zwischenzeugnis') {
+                this.certificateType = saved.certificate_type;
+            }
+            this.draftId = typeof saved?.id === 'string' ? saved.id : null;
+            this.draftStatus = saved?.status === 'final' ? 'final' : this.draftId ? 'draft' : null;
+        } catch {
+            this.draftId = null;
+            this.draftStatus = null;
+        }
+    }
+
+    setDraftRef(id: string | null, status: DraftStatus | null): void {
+        this.draftId = id;
+        this.draftStatus = status;
+        this.saveDraftRefToLocalStorage();
+    }
+
+    // The current state in the format of the API. unmatched counts selected
+    // texts that the loaded text modules do not contain.
+    toReferenceDraft(): { draft: ReferenceDraft; unmatched: number } {
+        const formData = Object.fromEntries(
+            Object.keys(PLACEHOLDER_LABELS)
+                .filter((name) => typeof this.formData[name] === 'string' && this.formData[name] !== '')
+                .map((name) => [name, this.formData[name]]),
+        );
+        const { selections, unmatched } = blocksToSelections(this.inputData, this.selectedBlocks);
+        return {
+            draft: { schema_version: 1, certificate_type: this.certificateType, form_data: formData, selections },
+            unmatched,
+        };
+    }
+
+    // Takes over a stored draft; textModules must be the variant of the draft.
+    applyDraft(view: DraftView, textModules: TextModules): void {
+        this.certificateType = view.draft.certificate_type;
+        this.formData = { ...view.draft.form_data };
+        this.inputData = textModules;
+        this.selectedBlocks = selectionsToBlocks(textModules, view.draft.selections);
+        this.birthdate = null;
+        this.hiredate = null;
+        this.enddate = null;
+        this.setDraftRef(view.id, view.status);
+        this.saveFormDataToLocalStorage();
+        this.saveSelectedBlocksToLocalStorage();
+        this.updateFlowText();
+    }
+
+    // Switches to another variant of the text modules (salutation) and carries
+    // the selected sentences over to the same positions in the new variant.
+    switchTextModules(textModules: TextModules): void {
+        if (this.inputData) {
+            const { selections } = blocksToSelections(this.inputData, this.selectedBlocks);
+            const carried = selectionsToBlocks(textModules, selections);
+            for (const [topic, blocks] of Object.entries(carried)) {
+                this.selectedBlocks[topic] = { ...this.selectedBlocks[topic], ...blocks };
+            }
+            this.saveSelectedBlocksToLocalStorage();
+        }
+        this.inputData = textModules;
+        this.updateFlowText();
+    }
+
     resetLocalStorage(): void {
         localStorage.removeItem('formData');
         localStorage.removeItem('selectedBlocks');
         localStorage.removeItem('flowText');
+        localStorage.removeItem('draft');
+        this.draftId = null;
+        this.draftStatus = null;
         this.formData = {};
         this.selectedBlocks = {};
         this.flowText = '';
@@ -131,74 +205,13 @@ export class DataStorageService {
     }
 
     public replacePlaceholders(text: string): string {
-        if (typeof text !== 'string') {
-            return '';
-        }
-        return text.replace(
-            /{(\w+)}/g,
-            (_, key) => {
-                const label = this.placeholderLabels[key] || key;
-                return this.formData[key] || `[${label}]`;
-            }
-        );
-    }
-
-    private replacePlaceholdersHtml(text: string): string {
-        if (typeof text !== 'string') {
-            return '';
-        }
-        const escaped = this.escapeHtml(text);
-        return escaped.replace(
-            /\{(\w+)\}/g,
-            (_, key) => {
-                if (this.formData[key]) {
-                    return this.escapeHtml(this.formData[key]);
-                }
-                const label = this.placeholderLabels[key] || key;
-                return `<span class="placeholder placeholder--${key}">[${label}]</span>`;
-            }
-        );
-    }
-
-    private escapeHtml(text: string): string {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return replacePlaceholders(text, this.formData);
     }
 
     public updateFlowText(): void {
-        const rawTexts = this.assembleRawTexts();
-        this.flowText = rawTexts.map(t => this.replacePlaceholders(t)).join('\n\n');
-        this.flowTextHtml = rawTexts.map(t => this.replacePlaceholdersHtml(t)).join('<br><br>');
+        this.flowText = assembleText(this.inputData, this.selectedBlocks, this.formData);
+        this.flowTextHtml = assembleHtml(this.inputData, this.selectedBlocks, this.formData);
         this.saveFlowTextToLocalStorage();
-    }
-
-    private assembleRawTexts(): string[] {
-        const topics = this.inputData?.textblocks.map((t: any) => t.name) || Object.keys(this.selectedBlocks);
-
-        return topics
-            .map((topic: string) => {
-                if (!this.selectedBlocks[topic]) {
-                    return '';
-                }
-                const topicBlock = this.inputData.textblocks.find(
-                    (block: any) => block.name === topic
-                );
-                const subtopicsOrder =
-                    topicBlock?.options.map((option: any) => option.name) || [];
-
-                const subtopicTexts = subtopicsOrder
-                    .map((subtopic: string) => this.selectedBlocks[topic][subtopic]?.text)
-                    .filter((text: string) => text);
-
-                if (subtopicTexts.length === 0 && topicBlock?.options.length > 0) {
-                    return this.selectedBlocks[topic]['option']?.text || '';
-                }
-
-                return subtopicTexts.join(' ');
-            })
-            .filter((t: string) => t);
     }
 
     public saveFlowTextToLocalStorage(): void {

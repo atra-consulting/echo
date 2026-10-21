@@ -1,0 +1,15 @@
+/* Type checking of the backend; esbuild bundles it (server/build.mjs). */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "importHelpers": false,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

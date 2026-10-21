@@ -40,8 +40,9 @@ export class IntroComponent implements OnInit {
   public saveData(key: string, value: string): void {
     this.dataStorageService.setFormData(key, value);
     if (key === 'salutation') {
-      this.dataStorageService.getData('').subscribe((response) => {
-        this.dataStorageService.inputData = response;
+      // The selected sentences move to the same positions in the other variant.
+      this.dataStorageService.loadTextModules().subscribe((response) => {
+        this.dataStorageService.switchTextModules(response);
       });
     }
   }
