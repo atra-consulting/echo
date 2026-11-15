@@ -16,10 +16,9 @@
 #   Lauf mit security_update_not_possible. Die wöchentlichen Sammel-PRs halten
 #   die Elternpakete aktuell, damit das nicht wieder passiert.
 #
-# ci.yml und lint-commit-messages.yml prüfen die PRs. Die Commit-Präfixe sind
-# Conventional Commits, weil commitlint sie verlangt; `chore` löst bei
-# semantic-release kein Release aus, deployt wird trotzdem bei jedem Push auf
-# main (deploy.yml).
+# ci.yml prüft die PRs (Build, Tests, beide Images mit Smoke-Test). Nach dem
+# Merge deployt deploy.yml bei jedem Push auf main. Die Präfixe `chore(...)`
+# halten nur die Commit-Liste lesbar; Releases gibt es keine mehr.
 #
 # Warum `cooldown`: Das häufigste npm-Angriffsmuster ist ein gekapertes
 #   Maintainer-Konto, das eine bösartige NEUE Version publiziert. Solche
@@ -83,10 +82,4 @@ updates:
           - '@angular-devkit/*'
           - 'typescript'
           - 'zone.js'
-      commitlint-major:
-        applies-to: version-updates
-        update-types:
-          - 'major'
-        patterns:
-          - '@commitlint/*'
       # Majors außerhalb der Gruppen bekommen je einen eigenen PR.

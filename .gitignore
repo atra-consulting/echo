@@ -20,9 +20,7 @@
 # Build
 !/.github/**
 !/.dockerignore
-!/.releaserc.yml
 !/angular.json
-!/commitlint.config.js
 !/compose.yaml
 !/deploy/**
 !/Dockerfile

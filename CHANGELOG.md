@@ -1,5 +1,8 @@
 # Changelog
 
+> **Archiv:** Seit 2026-11-15 gibt es keine automatischen Releases mehr, semantic-release wurde entfernt.
+> Diese Datei wird nicht mehr fortgeschrieben. Bestehende Tags und GitHub-Releases bleiben erhalten.
+
 ## [1.1.0](https://github.com/atra-consulting/echo/compare/v1.0.0...v1.1.0) (2026-11-15)
 
 ### Features

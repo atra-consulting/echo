@@ -44,9 +44,9 @@ gehören, committest du bitte nicht.
 
 ## Commit-Nachrichten
 
-Commits folgen [Conventional Commits](https://www.conventionalcommits.org/de/v1.0.0/) mit Typen wie `feat:`, `fix:`,
-`docs:` oder `chore:`. In jedem Pull Request prüft commitlint die Nachrichten. Nach dem Merge auf `main` leitet
-semantic-release daraus die nächste Version und das Changelog ab.
+Schreib eine kurze Betreffzeile auf Englisch im Imperativ und erkläre bei Bedarf im Text darunter, warum sich etwas
+ändert. Präfixe nach [Conventional Commits](https://www.conventionalcommits.org/de/v1.0.0/) wie `feat:`, `fix:` oder
+`chore:` sind üblich, werden aber nicht mehr geprüft oder ausgewertet. Automatische Releases gibt es nicht mehr.
 
 ## Code-Stil
 
