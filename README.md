@@ -87,8 +87,8 @@ zum Schluss und kopiere oder exportiere ihn direkt danach.
 
 | Tool              | Version          | Zweck                                         |
 |-------------------|------------------|-----------------------------------------------|
-| **Node.js**       | 22.12+ oder 24+  | Abhängigkeiten installieren, bauen, starten   |
-| **npm**           | 10+              | wird mit Node.js installiert                  |
+| **Node.js**       | 26               | Abhängigkeiten installieren, bauen, starten   |
+| **npm**           | 11               | wird mit Node.js installiert                  |
 | **Google Chrome** | aktuell          | Unit-Tests mit Karma                          |
 | **Docker**        | optional         | Container bauen und mit Compose starten       |
 
@@ -136,7 +136,7 @@ nicht. `npm start` liefert nur die statischen Dateien aus, ohne Backend lädt di
 
 Der Produktions-Build warnt, dass das Initial-Bundle das Budget von 1 MB knapp überschreitet; das ist bekannt.
 Bei jedem Pull Request und jedem Push auf `main` führt der Workflow `.github/workflows/ci.yml` Build und Tests von App
-und Backend aus, mit Node.js 22 und damit npm 10 wie in den Docker-Images. Außerdem baut er beide Images, startet sie
+und Backend aus, mit Node.js 26 und damit npm 11 wie in den Docker-Images. Außerdem baut er beide Images, startet sie
 mit `compose.yaml` und prüft Web-App und API mit `curl`.
 
 ---
@@ -160,8 +160,10 @@ docker compose up --build
 
 Die App läuft dann unter http://localhost:8080/, nur auf deinem Rechner erreichbar. Entwürfe landen im
 Firestore-Emulator und gehören dem Entwicklungsnutzer aus `compose.yaml`; mit dem Emulator verschwinden sie. Beide
-Images bauen in zwei Stufen auf `node:22-alpine` und enthalten nur das Nötige. Die Lizenzhinweise der in die App
-eingebundenen Abhängigkeiten liefert der Web-Container unter `/3rdpartylicenses.txt` aus.
+Images bauen in zwei Stufen auf `node:26-trixie-slim` und enthalten nur das Nötige: Der Web-Container läuft auf
+`nginxinc/nginx-unprivileged:1.30-alpine-slim`, das Backend auf `gcr.io/distroless/nodejs26-debian13:nonroot`, ohne
+Shell und Paketmanager. Beide laufen ohne root. Die Lizenzhinweise der in die App eingebundenen Abhängigkeiten liefert
+der Web-Container unter `/3rdpartylicenses.txt` aus.
 
 Der Workflow `.github/workflows/deploy.yml` stellt die Instanz von atra.consulting bei jedem Push auf `main` auf
 Google Cloud Run bereit: Er führt zuerst die Tests aus `ci.yml` aus, baut beide Images (`echo` und `echo-api`), legt

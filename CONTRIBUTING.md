@@ -14,7 +14,7 @@ Danke für dein Interesse! Der Zeugnisgenerator ist ein Werkzeug von atra.consul
 
 ## Lokal einrichten
 
-Du brauchst Node.js 22.12+ oder 24+ und für die Tests Google Chrome.
+Du brauchst Node.js 26 und für die Tests Google Chrome.
 
 ```bash
 npm ci
@@ -36,12 +36,11 @@ Tests in jedem Pull Request noch einmal aus.
 
 ## Abhängigkeiten
 
-Der Docker-Build verwendet npm 10 (aus `node:22-alpine`). Ändere Abhängigkeiten deshalb mit npm 10, zum Beispiel
-`npx -y npm@10 install <paket>`, damit `package-lock.json` mit npm 10 installierbar bleibt.
+CI und Docker-Builds installieren mit `npm ci` unter Node.js 26, also mit npm 11. Ändere Abhängigkeiten deshalb mit
+npm 11 (`npm install <paket>`), damit `package-lock.json` damit installierbar bleibt.
 
-Installiere sonst immer mit `npm ci`. Mit npm 11 (Node.js 24) schreibt schon ein einfaches `npm install` die Datei
-`package-lock.json` um, und `npm ci` mit npm 10 schlägt danach fehl („Missing: chokidar@5.0.0 from lock file“). Solche
-Änderungen an `package-lock.json` committest du bitte nicht.
+Installiere sonst immer mit `npm ci`. Änderungen an `package-lock.json`, die nicht zu einer geänderten Abhängigkeit
+gehören, committest du bitte nicht.
 
 ## Commit-Nachrichten
 

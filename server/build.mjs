@@ -25,7 +25,7 @@ await build({
     outExtension: { '.js': '.cjs' },
     bundle: true,
     platform: 'node',
-    target: 'node22',
+    target: 'node26',
     format: 'cjs',
     sourcemap: true,
     external: EXTERNAL,
