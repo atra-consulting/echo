@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Node 26 bringt npm 11 mit, wie die Docker-Images (node:26-trixie-slim). Damit schlägt
       # npm ci hier fehl, wenn package-lock.json mit npm 11 nicht installierbar ist.
@@ -55,7 +55,7 @@ jobs:
 
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 'Build and start (compose.yaml)'
         run: docker compose up --build --detach --wait
