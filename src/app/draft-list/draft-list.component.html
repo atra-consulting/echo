@@ -1,0 +1,39 @@
+@if (draftsService.available()) {
+    <section class="drafts" aria-labelledby="drafts-title">
+        <div class="drafts-header">
+            <h2 id="drafts-title">Ihre Entwürfe</h2>
+            <button mat-stroked-button (click)="fileInput.click()">
+                <mat-icon>upload_file</mat-icon>
+                JSON importieren
+            </button>
+            <input #fileInput type="file" accept="application/json,.json" hidden (change)="import($event)" />
+        </div>
+        @if (drafts().length === 0) {
+            <p class="empty">Noch keine gespeicherten Entwürfe.</p>
+        }
+        <ul>
+            @for (draft of drafts(); track draft.id) {
+                <li>
+                    <button class="open" (click)="open(draft)">
+                        <span class="title">{{ draft.title || 'Ohne Namen' }}</span>
+                        <span class="meta">
+                            {{ typeLabel(draft) }} · {{ draft.status === 'final' ? 'Final' : 'Entwurf' }} · geändert
+                            am {{ draft.updated_at | date: 'dd.MM.yyyy, HH:mm' }}
+                        </span>
+                    </button>
+                    <button mat-icon-button matTooltip="Als JSON exportieren" aria-label="Als JSON exportieren"
+                            (click)="export(draft)">
+                        <mat-icon>download</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Löschen" aria-label="Löschen" (click)="delete(draft)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </li>
+            }
+        </ul>
+        <p class="note">
+            Entwürfe und finale Fassungen sind {{ draftsService.retentionDays() }} Tage nach der letzten Änderung
+            nicht mehr abrufbar und werden danach gelöscht. Exportierte JSON-Dateien sind nicht verschlüsselt.
+        </p>
+    </section>
+}

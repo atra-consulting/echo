@@ -6,11 +6,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { DataStorageService } from '../data-storage.service';
+import { DraftListComponent } from '../draft-list/draft-list.component';
 import { ThemeService } from '../theme.service';
 
 @Component({
     selector: 'app-certificate-chooser',
-    imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
+    imports: [DraftListComponent, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
     templateUrl: './certificate-chooser.component.html',
     styleUrl: './certificate-chooser.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,9 +22,14 @@ export class CertificateChooserComponent {
   private router = inject(Router);
 
   public loadData(certificateType: 'abschlusszeugnis' | 'zwischenzeugnis'): void {
-    this.dataStorageService.dataUrl = 'assets/data_' + certificateType + '.json';
+    this.dataStorageService.loadDraftRefFromLocalStorage();
+    // Another certificate type is another reference: the next save creates a new draft.
+    if (certificateType !== this.dataStorageService.certificateType) {
+      this.dataStorageService.setDraftRef(null, null);
+    }
     this.dataStorageService.certificateType = certificateType;
-    this.dataStorageService.getData(this.dataStorageService.dataUrl).subscribe(response => {
+    this.dataStorageService.saveDraftRefToLocalStorage();
+    this.dataStorageService.loadTextModules().subscribe(response => {
       this.dataStorageService.inputData = response;
     });
     this.router.navigate(['/user-input']);

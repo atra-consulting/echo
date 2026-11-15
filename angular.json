@@ -28,7 +28,14 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets",
+                "ignore": [
+                  "data_*.json"
+                ]
+              }
             ],
             "styles": [
               "src/styles.scss"
@@ -63,6 +70,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "zeugnisgenerator:build:production"
@@ -90,7 +100,14 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets",
+                "ignore": [
+                  "data_*.json"
+                ]
+              }
             ],
             "styles": [
               "src/styles.scss"

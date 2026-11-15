@@ -1,10 +1,12 @@
 # =============================================================================
 # Stellt die Instanz von atra.consulting auf Google Cloud Run bereit.
 #
-# Ablauf: Push auf main → Anmeldung ohne Schlüssel per Workload Identity
-# Federation → Docker-Build → Push in die Artifact Registry → Deploy auf
-# Cloud Run. Die Secrets setzt die interne GCP-Plattform von atra.consulting.
-# In Forks läuft der Job nicht.
+# Ablauf: Push auf main → Tests (ci.yml) → Anmeldung ohne Schlüssel per
+# Workload Identity Federation → Build der beiden Images (web: nginx mit der
+# Web-App, api: Backend) → Push in die Artifact Registry → Deploy des Dienstes
+# mit zwei Containern per `gcloud run services replace`
+# (deploy/cloud-run/service.yaml). Die Secrets setzt die interne GCP-Plattform
+# von atra.consulting. In Forks läuft der Job nicht.
 # =============================================================================
 
 name: Deploy to Cloud Run
@@ -19,13 +21,18 @@ permissions:
   id-token: write # Pflicht für WIF
 
 env:
-  # Cloud-Run-Dienst und Image heißen echo, unabhängig vom Repo- und App-Namen.
+  # Cloud-Run-Dienst und Web-Image heißen echo, unabhängig vom Repo- und App-Namen.
   SERVICE_NAME: echo
   REGION: europe-west1
 
 jobs:
+  test:
+    if: github.repository_owner == 'atra-consulting'
+    uses: ./.github/workflows/ci.yml
+
   deploy:
     if: github.repository_owner == 'atra-consulting'
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -46,20 +53,87 @@ jobs:
       - name: Docker für Artifact Registry konfigurieren
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Image bauen und pushen
+      # Zwei Images: echo (Ingress mit Web-App, Name wie bisher) und echo-api (Backend).
+      - name: Images bauen und pushen
+        env:
+          REGISTRY: ${{ secrets.AR_REGISTRY }}
         run: |
-          IMAGE_URL="${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-          docker build -t "$IMAGE_URL" .
-          docker push "$IMAGE_URL"
-          docker tag "$IMAGE_URL" "${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest"
-          docker push "${{ secrets.AR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest"
-          echo "IMAGE_URL=$IMAGE_URL" >> "$GITHUB_ENV"
+          build_and_push() {
+            docker build -f "$2" -t "$REGISTRY/$1:$GITHUB_SHA" -t "$REGISTRY/$1:latest" .
+            docker push "$REGISTRY/$1:$GITHUB_SHA"
+            docker push "$REGISTRY/$1:latest"
+          }
+          build_and_push echo Dockerfile
+          build_and_push echo-api server/Dockerfile
+
+      # Das Manifest ersetzt den ganzen Dienst. Der Dienst läuft unter dem
+      # Runtime-Dienstkonto der Plattform (Secret RUNTIME_SA), das Zugriff auf
+      # Firestore und das App-Secret hat. Die Projektnummer für die Zielgruppe
+      # (audience) der IAP-Prüfung steht im Namespace des Dienstes.
+      - name: Manifest füllen
+        env:
+          IMAGE_REGISTRY: ${{ secrets.AR_REGISTRY }}
+          SERVICE_ACCOUNT: ${{ secrets.RUNTIME_SA }}
+        run: |
+          PROJECT_NUMBER="$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" \
+            --format='value(metadata.namespace)')"
+          if [ -z "$SERVICE_ACCOUNT" ] || ! printf '%s' "$PROJECT_NUMBER" | grep -Eq '^[0-9]+$'; then
+            echo "::error::Dienstkonto oder Projektnummer des Dienstes $SERVICE_NAME nicht lesbar"
+            exit 1
+          fi
+          export IMAGE_REGISTRY SERVICE_ACCOUNT
+          export IMAGE_TAG="$GITHUB_SHA"
+          export IAP_AUDIENCE="/projects/$PROJECT_NUMBER/locations/$REGION/services/$SERVICE_NAME"
+          export REVISION="$SERVICE_NAME-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT"
+          envsubst '${IMAGE_REGISTRY} ${IMAGE_TAG} ${SERVICE_ACCOUNT} ${IAP_AUDIENCE} ${REVISION}' \
+            < deploy/cloud-run/service.yaml > service.rendered.yaml
+
+      # Die Liste der Entwürfe (owner ==, updatedAt absteigend) braucht einen
+      # zusammengesetzten Index. Idempotent: existiert er, passiert nichts.
+      # Der Emulator kennt keine Indizes, lokal fällt ein fehlender nicht auf.
+      - name: Firestore-Index anlegen
+        run: |
+          set -euo pipefail
+          if AUSGABE="$(gcloud firestore indexes composite create \
+                --collection-group=drafts \
+                --field-config=field-path=owner,order=ascending \
+                --field-config=field-path=updatedAt,order=descending \
+                --async 2>&1)"; then
+            echo "$AUSGABE"
+          else
+            grep -q ALREADY_EXISTS <<<"$AUSGABE" || { echo "$AUSGABE" >&2; exit 1; }
+            echo "Index existiert bereits, nichts zu tun"
+          fi
+
+      # Firestore löscht Entwürfe nach expireAt (bei jedem Schreiben neu
+      # gesetzt: RETENTION_DAYS nach der letzten Änderung), meist innerhalb
+      # eines Tages danach; das Backend behandelt sie schon ab expireAt als
+      # gelöscht. Idempotent: ist die Richtlinie aktiv oder im Aufbau,
+      # passiert nichts.
+      - name: Firestore-TTL einrichten
+        run: |
+          set -euo pipefail
+          STAND="$(gcloud firestore fields ttls list --collection-group=drafts \
+            --filter='name ~ /fields/expireAt$' --format='value(ttlConfig.state)')"
+          if [ "$STAND" = "ACTIVE" ] || [ "$STAND" = "CREATING" ]; then
+            echo "TTL-Richtlinie für drafts.expireAt: $STAND, nichts zu tun"
+          else
+            gcloud firestore fields ttls update expireAt --collection-group=drafts --enable-ttl --async --quiet
+          fi
 
       - name: Auf Cloud Run deployen
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.SERVICE_NAME }}
-          region: ${{ env.REGION }}
-          image: ${{ env.IMAGE_URL }}
-          # service_account bewusst nicht gesetzt: Der Dienst behält sein
-          # bestehendes Runtime-Dienstkonto.
+        run: gcloud run services replace service.rendered.yaml --region "$REGION"
+
+      # Eine Revision gilt erst als bereit, wenn beide Container ihre
+      # Startprüfung bestanden haben; sonst bleibt der Verkehr auf der alten.
+      - name: Revision prüfen
+        run: |
+          describe() {
+            gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format="value($1)"
+          }
+          CREATED="$(describe status.latestCreatedRevisionName)"
+          READY="$(describe status.latestReadyRevisionName)"
+          if [ "$CREATED" != "$READY" ]; then
+            echo "::error::Revision $CREATED ist nicht bereit, siehe Logs des Dienstes in Cloud Run"
+            exit 1
+          fi

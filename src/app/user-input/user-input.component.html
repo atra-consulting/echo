@@ -41,6 +41,45 @@
                         <span>Dunkel</span>
                     </button>
                 </mat-menu>
+                @if (draftsService.available()) {
+                    @if (dataStorageService.draftStatus === 'final') {
+                        <mat-icon class="draft-final" matTooltip="Finale Fassung: Änderungen werden nicht gespeichert">
+                            lock
+                        </mat-icon>
+                    } @else {
+                        <button
+                            mat-icon-button
+                            [matTooltip]="dataStorageService.draftId ? 'Entwurf speichern' : 'Als Entwurf speichern'"
+                            aria-label="Entwurf speichern"
+                            (click)="saveDraft()">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                    }
+                    <button mat-icon-button matTooltip="Entwurf" aria-label="Entwurf" [matMenuTriggerFor]="draftMenu">
+                        <mat-icon>folder_open</mat-icon>
+                    </button>
+                    <mat-menu #draftMenu="matMenu">
+                        @if (dataStorageService.draftStatus === 'final') {
+                            <button mat-menu-item (click)="copyAsNewDraft()">
+                                <mat-icon>content_copy</mat-icon>
+                                <span>Als neuen Entwurf speichern</span>
+                            </button>
+                        } @else {
+                            <button mat-menu-item (click)="finalizeDraft()">
+                                <mat-icon>verified</mat-icon>
+                                <span>Als final markieren</span>
+                            </button>
+                        }
+                        <button mat-menu-item (click)="exportDraft()">
+                            <mat-icon>download</mat-icon>
+                            <span>Als JSON exportieren (unverschlüsselt)</span>
+                        </button>
+                        <button mat-menu-item (click)="back()">
+                            <mat-icon>list</mat-icon>
+                            <span>Alle Entwürfe</span>
+                        </button>
+                    </mat-menu>
+                }
                 <button
                     mat-icon-button
                     matTooltip="Zurücksetzen"
@@ -74,7 +113,14 @@
         </div>
     </header>
 
-    @if (!dataStorageService.inputData) {
+    @if (!dataStorageService.inputData && dataStorageService.textModulesError) {
+        <div class="main-content">
+            <div class="panel" role="alert">
+                <p>Die Textbausteine konnten nicht geladen werden. Bitte laden Sie die Seite später neu.</p>
+            </div>
+        </div>
+    }
+    @if (!dataStorageService.inputData && !dataStorageService.textModulesError) {
         <div class="main-content">
             <div class="skeleton-container">
                 <div class="skeleton skeleton-stepper"></div>
