@@ -1,0 +1,92 @@
+# Automatische Dependency-Updates via Dependabot (Vorbild: atra-homepage,
+# atra-demo-raumbuchung-web).
+#
+# Zwei Ökosysteme:
+#   - github-actions: monatlich. Die Workflows stehen noch auf checkout@v4,
+#     setup-node@v4 und google-github-actions/*@v2, der erste Lauf bringt also
+#     Major-PRs.
+#   - npm: wöchentlich. Es gibt nur ein package.json im Wurzelverzeichnis, für
+#     App und Backend (server/ hat kein eigenes). Minor-/Patch-Bumps kommen
+#     gebündelt in EINEM Sammel-PR, Sicherheitsupdates ebenfalls in EINEM
+#     Sammel-PR, Angular-Majors als Familie (siehe groups).
+#
+# Warum Versions-Updates nötig sind: Sicherheitsupdates allein heben nur das
+#   verwundbare Paket an. Steckt es tief im Baum und hält ein Elternpaket es
+#   fest (z. B. @angular/build undici auf einer festen Version), scheitert der
+#   Lauf mit security_update_not_possible. Die wöchentlichen Sammel-PRs halten
+#   die Elternpakete aktuell, damit das nicht wieder passiert.
+#
+# ci.yml und lint-commit-messages.yml prüfen die PRs. Die Commit-Präfixe sind
+# Conventional Commits, weil commitlint sie verlangt; `chore` löst bei
+# semantic-release kein Release aus, deployt wird trotzdem bei jedem Push auf
+# main (deploy.yml).
+#
+# Warum `cooldown`: Das häufigste npm-Angriffsmuster ist ein gekapertes
+#   Maintainer-Konto, das eine bösartige NEUE Version publiziert. Solche
+#   Versionen fallen meist binnen Stunden bis Tagen auf und werden entfernt.
+#   Mit Cooldown erscheinen sie nie als PR. Gilt nur für Versions-Updates,
+#   Security-Updates (aus Dependabot Alerts) kommen weiterhin sofort.
+#
+# Nicht abgedeckt: die Docker-Basis-Images (node:26-trixie-slim,
+#   gcr.io/distroless/nodejs26-debian13:nonroot,
+#   nginxinc/nginx-unprivileged:1.30-alpine-slim). Sie sind nicht per Digest
+#   gepinnt, jeder Build zieht also ohnehin den aktuellen Patch-Stand. Den
+#   Node-Major hebt man bewusst von Hand an, zusammen mit node-version in
+#   ci.yml.
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: 'chore(ci)'
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Berlin'
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-patch-days: 5
+      semver-minor-days: 7
+      semver-major-days: 14
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      minor-und-patch:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Alle Sicherheitsupdates in einem Sammel-PR statt einer PR-Flut.
+      sicherheit:
+        applies-to: security-updates
+        patterns:
+          - '*'
+      # Angular-Pakete sind über peerDependencies gekoppelt und einzeln nicht
+      # installierbar. Majors brauchen ohnehin `ng update` (Migrationen), der
+      # PR ist eher Erinnerung als fertiger Merge-Kandidat.
+      angular-major:
+        applies-to: version-updates
+        update-types:
+          - 'major'
+        patterns:
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - 'typescript'
+          - 'zone.js'
+      commitlint-major:
+        applies-to: version-updates
+        update-types:
+          - 'major'
+        patterns:
+          - '@commitlint/*'
+      # Majors außerhalb der Gruppen bekommen je einen eigenen PR.
