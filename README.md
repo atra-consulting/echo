@@ -637,7 +637,7 @@ oder selbst betreibst, bringst du eigene Textbausteine im selben Format mit.
 | **Google-Anbindung** | Google Identity Services · REST-APIs von Docs, Sheets und Drive              |
 | **Backend**          | Express · zod · MCP TypeScript SDK · jose · esbuild · Test-Runner von Node.js |
 | **Datenhaltung**     | Firestore (Entwürfe, verschlüsselt mit AES-256-GCM) · Emulator für lokal     |
-| **CI/CD**            | GitHub Actions · semantic-release · commitlint                               |
+| **CI/CD**            | GitHub Actions · Dependabot                                                  |
 
 ---
 
@@ -646,7 +646,7 @@ oder selbst betreibst, bringst du eigene Textbausteine im selben Format mit.
 Die wichtigsten Ordner und Dateien:
 
 ```
-├── .github/workflows/               Build und Tests, Commit-Prüfung, Release, Deployment
+├── .github/workflows/               Build und Tests, Deployment
 ├── deploy/
 │   ├── cloud-run/service.yaml       Cloud-Run-Dienst mit zwei Containern
 │   └── nginx/                       Konfiguration des Ingress
@@ -697,13 +697,11 @@ Die wichtigsten Ordner und Dateien:
 
 ## Versionierung
 
-Versionen folgen [Semantic Versioning](https://semver.org/lang/de/). Commit-Nachrichten folgen
-[Conventional Commits](https://www.conventionalcommits.org/de/v1.0.0/); [commitlint](https://commitlint.js.org/)
-prüft sie in jedem Pull Request. Bei jedem Push auf `main` ermittelt
-[semantic-release](https://github.com/semantic-release/semantic-release) daraus die nächste Version, schreibt
-`CHANGELOG.md` und legt ein GitHub-Release an. Release und Deployment laufen nur im Repository von atra.consulting. Die
-Version in `package.json` setzt semantic-release beim Release (Startwert `0.0.0-development`); ändere sie nicht von
-Hand.
+Seit dem 15.11.2026 gibt es keine automatischen Releases mehr; semantic-release und commitlint sind entfernt. Der
+letzte Release ist v1.1.0. `CHANGELOG.md`, die Tags und die GitHub-Releases bleiben als Archiv erhalten. Die Version
+in `package.json` (1.1.0) meldet das Backend unter `/api/health` und an MCP-Clients; sie ändert sich nur noch, wenn
+jemand bewusst einen Release festlegt. Deployt wird unabhängig davon bei jedem Push auf `main`, nur im Repository von
+atra.consulting.
 
 ---
 
