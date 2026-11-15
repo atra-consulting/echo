@@ -39,9 +39,18 @@ services:
       # of the backend. Production reads the key ring from Secret Manager.
       DRAFT_ENCRYPTION_KEY: '{"active":"dev","keys":{"dev":"TlVSLUxPS0FMLWtlaW4tZWNodGVyLVNjaGx1ZXNzZWw="}}'
     # With the container IP as Host, as a Cloud Run probe would send it: the
-    # health check must answer regardless of the Host validation.
+    # health check must answer regardless of the Host validation. The image is
+    # distroless (no shell, no wget), so node itself sends the request.
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://$$(hostname -i | cut -d' ' -f1):8081/api/health"]
+      test:
+        - CMD
+        - /nodejs/bin/node
+        - -e
+        - >-
+          const ip = Object.values(require('os').networkInterfaces()).flat()
+          .find((i) => i.family === 'IPv4' && !i.internal).address;
+          fetch('http://' + ip + ':8081/api/health')
+          .then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1));
       interval: 10s
       timeout: 3s
       retries: 3

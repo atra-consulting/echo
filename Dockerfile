@@ -1,7 +1,10 @@
 # Image of the web app and ingress: nginx serves the Angular build and forwards
 # /api and /mcp to the backend (server/Dockerfile) on loopback. On Cloud Run
 # both run as containers of one service, locally via compose.yaml.
-FROM node:22-alpine AS builder
+#
+# Builds on Node 26 (Debian 13); the final image holds no Node at all, only
+# nginx and the static build.
+FROM node:26-trixie-slim AS builder
 
 WORKDIR /app
 
@@ -13,8 +16,10 @@ COPY . .
 
 RUN npm run build
 
-# Runs as an unprivileged user and listens on $PORT (Cloud Run sets 8080).
-FROM nginxinc/nginx-unprivileged:stable-alpine
+# Runs as an unprivileged user (nginx, UID 101) and listens on $PORT (Cloud Run
+# sets 8080). The slim variant has no dynamic modules (njs and the like); the
+# config in deploy/nginx/ needs none of them.
+FROM nginxinc/nginx-unprivileged:1.30-alpine-slim
 
 # The image fills in the variables matching the filter (PORT, API_PORT) when it starts.
 ENV PORT=8080 \

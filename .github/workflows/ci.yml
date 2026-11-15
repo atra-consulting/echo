@@ -25,12 +25,12 @@ jobs:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
 
-      # Node 22 bringt npm 10 mit, wie das Docker-Image (node:22-alpine). Damit schlägt
-      # npm ci hier fehl, wenn package-lock.json mit npm 10 nicht installierbar ist.
+      # Node 26 bringt npm 11 mit, wie die Docker-Images (node:26-trixie-slim). Damit schlägt
+      # npm ci hier fehl, wenn package-lock.json mit npm 11 nicht installierbar ist.
       - name: 'Setup node'
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
 
       - name: 'Install dependencies'
