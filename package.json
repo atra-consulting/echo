@@ -40,7 +40,7 @@
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
     "@types/express": "^5.0.6",
-    "@types/jasmine": "~4.3.0",
+    "@types/jasmine": "~7.0.0",
     "@types/node": "^26.6.6",
     "esbuild": "^0.27.2",
     "jasmine-core": "~4.5.0",
