@@ -21,11 +21,18 @@ RUN npm run build:server
 
 FROM gcr.io/distroless/nodejs26-debian13:nonroot
 
+# The image runs as nonroot, but root creates the directory and owns the files:
+# the service can read its code and dependencies, not change or replace them.
+# It writes nowhere at runtime (/tmp stays writable).
+USER root
+
 WORKDIR /app
 
 # The bundle contains the server, its dependencies and the text modules; next
 # to it node_modules with the Firestore client, which cannot be bundled.
 COPY --from=builder /app/dist/server ./
+
+USER 65532:65532
 
 ENV API_PORT=8081
 
